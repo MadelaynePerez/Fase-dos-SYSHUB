@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SysHub — Foros</title>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<div class="topbar">
+  <a class="topbar-brand" href="feed.html">🛰️ SYSHUB</a>
+  <div class="topbar-right">
+    <span id="topbar-nombre" style="font-size:13px;color:var(--text-muted)"></span>
+    <div class="avatar" id="topbar-avatar"></div>
+    <button class="btn btn-ghost btn-sm" onclick="logout()">Salir</button>
+  </div>
+</div>
+
+<div class="layout">
+  <nav class="sidebar">
+    <span class="sidebar-label">Navegar</span>
+    <a class="nav-btn" href="feed.html"><svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Feed</a>
+    <a class="nav-btn active" href="foros.html"><svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Foros</a>
+    <a class="nav-btn" href="proyecto-nuevo.html"><svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nueva publicación</a>
+    <a class="nav-btn" href="perfil.html"><svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Mi perfil</a>
+  </nav>
+
+  <!-- VISTA LISTA -->
+  <main class="main" id="vista-lista">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <h1 class="section-title">Foros de discusión</h1>
+        <p class="section-sub">Pregunta, debate y comparte conocimiento</p>
+      </div>
+      <button class="btn btn-primary" onclick="openModal('modal-nuevo-foro')">+ Nuevo foro</button>
+    </div>
+
+    <div id="foros-lista">
+      <div class="loading"><div class="spinner"></div> Cargando foros...</div>
+    </div>
+  </main>
+
+  <!-- VISTA DETALLE FORO -->
+  <main class="main" id="vista-detalle" style="display:none">
+    <button class="btn btn-ghost btn-sm" onclick="volverLista()" style="align-self:flex-start">← Volver a foros</button>
+    <div id="detalle-header"></div>
+    <div>
+      <h2 class="section-title" style="font-size:15px;margin-bottom:12px">Respuestas</h2>
+      <div id="respuestas-lista" style="display:flex;flex-direction:column;gap:12px"></div>
+    </div>
+    <div class="card-flat">
+      <div class="form-group" style="margin-bottom:8px">
+        <label class="form-label">Tu respuesta</label>
+        <textarea class="form-input" id="nueva-respuesta" rows="3" placeholder="Escribe tu respuesta o aporte..."></textarea>
+      </div>
+      <div style="display:flex;justify-content:flex-end">
+        <button class="btn btn-primary" onclick="enviarRespuesta()">Enviar respuesta</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- MODAL NUEVO FORO -->
+<div class="modal-overlay" id="modal-nuevo-foro">
+  <div class="modal">
+    <div class="modal-title">Nuevo foro de discusión
+      <button class="modal-close" onclick="closeModal('modal-nuevo-foro')">×</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Título *</label>
+      <input class="form-input" id="nf-titulo" placeholder="¿Cuál es tu pregunta o tema?"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Descripción *</label>
+      <textarea class="form-input" id="nf-contenido" rows="5" placeholder="Detalla tu pregunta, el contexto del problema, lo que ya intentaste..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-nuevo-foro')">Cancelar</button>
+      <button class="btn btn-primary" onclick="crearForo()">Publicar foro</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<script src="js/api.js"></script>
+<script src="js/auth-guard.js"></script>
+<script>
+const user = requireAuth();
+let foroActivo = null;
+
+// ── LISTA 
+async function cargarForos() {
+  try {
+    const foros = await Foros.listar();
+    const c = document.getElementById('foros-lista');
+    if (!foros.length) {
+      c.innerHTML = `<div class="empty-state"><div class="icon">💬</div><p>No hay foros aún. ¡Crea el primero!</p></div>`;
+      return;
+    }
+    c.innerHTML = foros.map(f => `
+      <div class="card" style="cursor:pointer" onclick="abrirForo(${f.id_foro})">
+        <div class="post-header">
+          <div class="post-avatar">${initials(f.nombre_usuario||'US')}</div>
+          <div style="flex:1">
+            <div class="post-user">${f.nombre_usuario||'Estudiante'}</div>
+            <div class="post-time">${timeSince(f.fecha_creacion)}</div>
+          </div>
+          <span class="badge badge-foro">FORO</span>
+        </div>
+        <div style="font-size:15px;font-weight:600;color:#fff;margin-bottom:6px">${f.titulo}</div>
+        <div class="post-body">"${f.contenido}"</div>
+        <div class="post-footer">
+          <div class="post-actions">
+            <button class="action-btn" onclick="event.stopPropagation();abrirForo(${f.id_foro})">
+              💬 Ver respuestas
+            </button>
+            <button class="action-btn" onclick="event.stopPropagation();votar(${f.id_foro},1)">👍</button>
+            <button class="action-btn" onclick="event.stopPropagation();votar(${f.id_foro},-1)">👎</button>
+          </div>
+        </div>
+      </div>`).join('');
+  } catch {
+    document.getElementById('foros-lista').innerHTML =
+      `<div class="empty-state"><div class="icon">⚠️</div><p>Error al cargar foros.</p></div>`;
+  }
+}
+
+async function crearForo() {
+  const titulo    = document.getElementById('nf-titulo').value.trim();
+  const contenido = document.getElementById('nf-contenido').value.trim();
+  if (!titulo || !contenido) return showToast('Completa todos los campos', 'error');
+  try {
+    await Foros.crear({ titulo, contenido, id_usuario: user.id_usuario });
+    showToast('¡Foro creado!');
+    closeModal('modal-nuevo-foro');
+    document.getElementById('nf-titulo').value = '';
+    document.getElementById('nf-contenido').value = '';
+    cargarForos();
+  } catch { showToast('Error al crear foro', 'error'); }
+}
+
+async function votar(id_foro, valor) {
+  try {
+    await Votos.votar('foro', id_foro, user.id_usuario, valor);
+    showToast(valor > 0 ? '👍 Votado' : '👎 Registrado');
+  } catch { showToast('Error al votar', 'error'); }
+}
+
+// detalle
+async function abrirForo(id_foro) {
+  foroActivo = id_foro;
+  document.getElementById('vista-lista').style.display = 'none';
+  document.getElementById('vista-detalle').style.display = '';
+
+  // Cargar el foro
+  const foros = await Foros.listar();
+  const foro  = foros.find(f => f.id_foro === id_foro);
+  if (foro) {
+    document.getElementById('detalle-header').innerHTML = `
+      <div class="card-flat">
+        <div class="post-header">
+          <div class="post-avatar">${initials(foro.nombre_usuario||'US')}</div>
+          <div style="flex:1">
+            <div class="post-user">${foro.nombre_usuario||'Estudiante'}</div>
+            <div class="post-time">${timeSince(foro.fecha_creacion)}</div>
+          </div>
+          <span class="badge badge-foro">FORO</span>
+        </div>
+        <h2 style="font-size:18px;font-weight:700;color:#fff;margin-bottom:10px">${foro.titulo}</h2>
+        <div class="post-body">"${foro.contenido}"</div>
+      </div>`;
+  }
+  cargarRespuestas(id_foro);
+}
+
+async function cargarRespuestas(id_foro) {
+  const c = document.getElementById('respuestas-lista');
+  c.innerHTML = `<div class="loading"><div class="spinner"></div> Cargando respuestas...</div>`;
+  try {
+    const comentarios = await Comentarios.listar(id_foro);
+    if (!comentarios.length) {
+      c.innerHTML = `<div class="empty-state"><div class="icon">🗨️</div><p>Sé el primero en responder.</p></div>`;
+      return;
+    }
+    c.innerHTML = comentarios.map(com => `
+      <div class="card" style="border-left:3px solid var(--purple-border)">
+        <div class="post-header">
+          <div class="post-avatar">${initials(com.nombre_usuario||'US')}</div>
+          <div style="flex:1">
+            <div class="post-user">${com.nombre_usuario||'Estudiante'}</div>
+            <div class="post-time">${timeSince(com.fecha_creacion)}</div>
+          </div>
+        </div>
+        <p style="font-size:14px;color:var(--text);line-height:1.6">${com.contenido}</p>
+      </div>`).join('');
+  } catch {
+    c.innerHTML = `<p style="color:var(--text-dim);font-size:13px">Error al cargar respuestas.</p>`;
+  }
+}
+
+async function enviarRespuesta() {
+  const contenido = document.getElementById('nueva-respuesta').value.trim();
+  if (!contenido) return showToast('Escribe algo primero', 'error');
+  try {
+    await Comentarios.crear({ contenido, id_usuario: user.id_usuario, id_foro: foroActivo });
+    document.getElementById('nueva-respuesta').value = '';
+    showToast('¡Respuesta publicada!');
+    cargarRespuestas(foroActivo);
+  } catch { showToast('Error al enviar respuesta', 'error'); }
+}
+
+function volverLista() {
+  document.getElementById('vista-detalle').style.display = 'none';
+  document.getElementById('vista-lista').style.display = '';
+  history.pushState({}, '', 'Foros.html');
+  cargarForos();
+}
+
+//
+const params = new URLSearchParams(location.search);
+if (params.get('id')) {
+  abrirForo(parseInt(params.get('id')));
+} else {
+  cargarForos();
+}
+</script>
+</body>
+</html>

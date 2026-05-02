@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SysHub — Feed</title>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<!-- bar -->
+<div class="topbar">
+  <a class="topbar-brand" href="feed.html">🛰️ SYSHUB</a>
+  <div class="topbar-right">
+    <div class="search-box">
+      <svg style="width:14px;height:14px;stroke:var(--text-dim);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" placeholder="Buscar..." id="search-input" oninput="filtrarFeed()"/>
+    </div>
+    <span id="topbar-nombre" style="font-size:13px;color:var(--text-muted)"></span>
+    <div class="avatar" id="topbar-avatar" onclick="window.location='perfil.html'"></div>
+    <button class="btn btn-ghost btn-sm" onclick="logout()">Salir</button>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- principal -->
+  <nav class="sidebar">
+    <span class="sidebar-label">Principal</span>
+    <a class="nav-btn active" href="feed.html">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Feed
+    </a>
+    <a class="nav-btn" href="foros.html">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      Foros
+    </a>
+    <a class="nav-btn" href="perfil.html">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Mi perfil
+    </a>
+
+    <span class="sidebar-label">Publicar</span>
+    <a class="nav-btn" href="proyecto-nuevo.html">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Nuevo proyecto
+    </a>
+    <button class="nav-btn" onclick="openModal('modal-foro')">
+      <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+      Crear foro
+    </button>
+
+    <div class="sidebar-divider" data-rol="2,3"></div>
+    <span class="sidebar-label" data-rol="2,3">Panel</span>
+    <a class="nav-btn" href="auxiliar.html" data-rol="2,3">
+      <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      Panel Auxiliar
+    </a>
+    <a class="nav-btn" href="admin.html" data-rol="3">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
+      Panel Admin
+    </a>
+  </nav>
+
+  <!--  -->
+  <main class="main">
+    <div>
+      <h1 class="section-title">Feed principal</h1>
+      <p class="section-sub">Publicaciones y proyectos de la comunidad</p>
+    </div>
+
+    <!-- filtrar info -->
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-primary btn-sm" onclick="setFiltro('todo',this)">Todo</button>
+      <button class="btn btn-ghost btn-sm"   onclick="setFiltro('proyecto',this)">Proyectos</button>
+      <button class="btn btn-ghost btn-sm"   onclick="setFiltro('foro',this)">Foros</button>
+      <button class="btn btn-warning btn-sm" onclick="setFiltro('destacado',this)">⭐ Destacados</button>
+    </div>
+
+    <!-- feedd -->
+    <div id="feed-container">
+      <div class="loading"><div class="spinner"></div> Cargando publicaciones...</div>
+    </div>
+  </main>
+
+  <!--panel -->
+  <aside class="right-panel">
+    <div class="panel-title">Acciones rápidas</div>
+    <a class="btn btn-primary btn-sm" href="proyecto-nuevo.html" style="text-decoration:none;justify-content:center">+ Nuevo proyecto</a>
+    <button class="btn btn-ghost btn-sm" onclick="openModal('modal-foro')">+ Crear foro</button>
+    <div style="margin-top:12px">
+      <div class="panel-title">Filtrar por</div>
+      <div style="display:flex;flex-direction:column;gap:4px;margin-top:8px">
+        <button class="nav-btn" onclick="setFiltro('destacado')">⭐ Destacados</button>
+        <button class="nav-btn" onclick="setFiltro('proyecto')">📁 Proyectos</button>
+        <button class="nav-btn" onclick="setFiltro('foro')">💬 Foros</button>
+        <button class="nav-btn" onclick="setFiltro('todo')">🔁 Ver todo</button>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- creacion de foros -->
+<div class="modal-overlay" id="modal-foro">
+  <div class="modal">
+    <div class="modal-title">Crear foro de discusión
+      <button class="modal-close" onclick="closeModal('modal-foro')">×</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Título del foro</label>
+      <input class="form-input" id="f-titulo" placeholder="¿Cuál es tu duda o tema?"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Descripción</label>
+      <textarea class="form-input" id="f-contenido" rows="4" placeholder="Detalla tu pregunta o tema a debatir..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-foro')">Cancelar</button>
+      <button class="btn btn-primary" onclick="crearForo()">Publicar foro</button>
+    </div>
+  </div>
+</div>
+
+<!-- modal -->
+<div class="modal-overlay" id="modal-comentario">
+  <div class="modal">
+    <div class="modal-title">Comentar proyecto
+      <button class="modal-close" onclick="closeModal('modal-comentario')">×</button>
+    </div>
+    <div id="comentarios-lista" style="margin-bottom:16px;display:flex;flex-direction:column;gap:10px;max-height:300px;overflow-y:auto"></div>
+    <div class="form-group">
+      <label class="form-label">Tu comentario</label>
+      <textarea class="form-input" id="nuevo-comentario" rows="3" placeholder="Escribe tu comentario..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-comentario')">Cerrar</button>
+      <button class="btn btn-primary" onclick="enviarComentario()">Enviar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<script src="js/api.js"></script>
+<script src="js/auth-guard.js"></script>
+<script>
+const user = requireAuth();
+let todosLosItems = [];
+let filtroActivo = 'todo';
+let proyectoActivo = null;
+
+async function cargarFeed() {
+  try {
+    const [proyectos, foros] = await Promise.all([Proyectos.listar(), Foros.listar()]);
+    todosLosItems = [
+      ...proyectos.map(p => ({...p, _tipo:'proyecto'})),
+      ...foros.map(f => ({...f, _tipo:'foro'})),
+    ].sort((a,b) => new Date(b.fecha_creacion) - new Date(a.fecha_creacion));
+    renderFeed();
+  } catch {
+    document.getElementById('feed-container').innerHTML =
+      `<div class="empty-state"><div class="icon">⚠️</div><p>No se pudo conectar al servidor.</p></div>`;
+  }
+}
+
+function setFiltro(f, btn) {
+  filtroActivo = f;
+  document.querySelectorAll('.btn-primary.btn-sm, .btn-ghost.btn-sm').forEach(b =>
+    b.classList.replace('btn-primary','btn-ghost'));
+  if (btn) btn.classList.replace('btn-ghost','btn-primary');
+  renderFeed();
+}
+
+function filtrarFeed() { renderFeed(); }
+
+function renderFeed() {
+  const q = (document.getElementById('search-input')?.value || '').toLowerCase();
+  let items = todosLosItems.filter(item => {
+    if (filtroActivo === 'proyecto')  return item._tipo === 'proyecto';
+    if (filtroActivo === 'foro')      return item._tipo === 'foro';
+    if (filtroActivo === 'destacado') return item.destacado;
+    return true;
+  }).filter(item => {
+    if (!q) return true;
+    return (item.titulo+item.descripcion+item.contenido+'').toLowerCase().includes(q);
+  });
+
+  const c = document.getElementById('feed-container');
+  if (!items.length) {
+    c.innerHTML = `<div class="empty-state"><div class="icon">📭</div><p>Sin publicaciones para mostrar.</p></div>`;
+    return;
+  }
+  c.innerHTML = items.map(renderItem).join('');
+  items.forEach(item => {
+    const id   = item._tipo === 'foro' ? item.id_foro : item.id_proyecto;
+    cargarVotos(item._tipo, id);
+  });
+}
+
+function renderItem(item) {
+  const isForo = item._tipo === 'foro';
+  const ini    = initials(item.nombre_usuario || 'US');
+  const body   = isForo ? item.contenido : item.descripcion;
+  const badge  = isForo
+    ? `<span class="badge badge-foro">FORO</span>`
+    : `<span class="badge badge-proyecto">PROYECTO</span>`;
+  const dest   = item.destacado
+    ? `<div class="destacado-banner">⭐ Proyecto destacado por auxiliar</div>` : '';
+  const stack  = !isForo && item.stack_tecnologico
+    ? `<div class="stack-tags">${stackTagsHTML(item.stack_tecnologico)}</div>` : '';
+  const archivo = !isForo && item.archivo
+    ? `<a class="file-link" href="http://localhost:3000/uploads/${item.archivo}" target="_blank">📄 ${item.archivo}</a>` : '';
+  const id = isForo ? item.id_foro : item.id_proyecto;
+
+  return `
+  <div class="card" style="margin-bottom:0">
+    ${dest}
+    <div class="post-header">
+      <div class="post-avatar">${ini}</div>
+      <div style="flex:1">
+        <div class="post-user">${item.nombre_usuario || 'Estudiante'}</div>
+        <div class="post-time">${timeSince(item.fecha_creacion)}</div>
+      </div>
+      ${badge}
+    </div>
+    <div style="font-size:15px;font-weight:600;color:#fff;margin-bottom:8px">${item.titulo}</div>
+    <div class="post-body">"${body}"</div>
+    ${stack}
+    <div class="post-footer">
+      <div class="post-actions">
+        ${isForo
+          ? `<button class="action-btn" onclick="window.location='Foros.html?id=${id}'">💬 Ver discusión</button>`
+          : `<button class="action-btn" onclick="abrirComentarios(${id})">💬 Comentar</button>`
+        }
+        <button class="action-btn" id="like-${item._tipo}-${id}" onclick="votar('${item._tipo}',${id},1)">👍 <span id="likes-${item._tipo}-${id}">0</span></button>
+        <button class="action-btn" id="dis-${item._tipo}-${id}"  onclick="votar('${item._tipo}',${id},-1)">👎</button>
+        ${archivo}
+      </div>
+      <div class="stars">${starsHTML(3)}</div>
+    </div>
+  </div>`;
+}
+
+async function votar(tipo, id, valor) {
+  try {
+    await Votos.votar(tipo, id, user.id_usuario, valor);
+    const el = document.getElementById(`likes-${tipo}-${id}`);
+    if (el) el.textContent = parseInt(el.textContent||0) + valor;
+    showToast(valor > 0 ? '👍 Voto registrado' : '👎 Registrado');
+  } catch { showToast('Error al votar', 'error'); }
+}
+async function cargarVotos(tipo, id) {
+  try {
+    const r = await fetch(`${API_BASE}/votos/${tipo}/${id}`);
+    const data = await r.json();
+    const el = document.getElementById(`likes-${tipo}-${id}`);
+    if (el) el.textContent = data.total || 0;
+  } catch {}
+}
+
+async function crearForo() {
+  const titulo    = document.getElementById('f-titulo').value.trim();
+  const contenido = document.getElementById('f-contenido').value.trim();
+  if (!titulo || !contenido) return showToast('Completa todos los campos', 'error');
+  try {
+    await Foros.crear({ titulo, contenido, id_usuario: user.id_usuario });
+    showToast('¡Foro creado!');
+    closeModal('modal-foro');
+    document.getElementById('f-titulo').value = '';
+    document.getElementById('f-contenido').value = '';
+    cargarFeed();
+  } catch { showToast('Error al crear foro', 'error'); }
+}
+
+async function abrirComentarios(id_proyecto) {
+  proyectoActivo = id_proyecto;
+  openModal('modal-comentario');
+  document.getElementById('comentarios-lista').innerHTML =
+    `<div class="loading"><div class="spinner"></div> Cargando...</div>`;
+  try {
+  
+    document.getElementById('comentarios-lista').innerHTML =
+      `<p style="font-size:13px;color:var(--text-dim)">Los comentarios de proyectos estarán disponibles próximamente.</p>`;
+  } catch { }
+}
+
+async function enviarComentario() {
+  const contenido = document.getElementById('nuevo-comentario').value.trim();
+  if (!contenido) return;
+  showToast('Comentario enviado');
+  document.getElementById('nuevo-comentario').value = '';
+}
+
+cargarFeed();
+</script>
+</body>
+</html>

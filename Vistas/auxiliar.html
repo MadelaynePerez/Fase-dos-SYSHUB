@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SysHub — Panel Auxiliar</title>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<div class="topbar">
+  <a class="topbar-brand" href="feed.html">🛰️ SYSHUB</a>
+  <div class="topbar-right">
+    <span id="topbar-nombre" style="font-size:13px;color:var(--text-muted)"></span>
+    <div class="avatar" id="topbar-avatar"></div>
+    <button class="btn btn-ghost btn-sm" onclick="logout()">Salir</button>
+  </div>
+</div>
+
+<div class="layout">
+  <nav class="sidebar">
+    <span class="sidebar-label">Navegar</span>
+    <a class="nav-btn" href="feed.html"><svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Feed</a>
+    <a class="nav-btn" href="foros.html"><svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Foros</a>
+    <div class="sidebar-divider"></div>
+    <span class="sidebar-label">Panel auxiliar</span>
+    <a class="nav-btn active" href="auxiliar.html"><svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Destacar proyectos</a>
+    <a class="nav-btn" href="admin.html" data-rol="3"><svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>Panel Admin</a>
+  </nav>
+
+  <main class="main-wide">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+      <div>
+        <h1 class="section-title">Panel Auxiliar</h1>
+        <p class="section-sub">Revisa y destaca los mejores proyectos de la comunidad</p>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost btn-sm" onclick="setVista('todos')">Todos</button>
+        <button class="btn btn-warning btn-sm" onclick="setVista('destacados')">⭐ Solo destacados</button>
+        <button class="btn btn-ghost btn-sm" onclick="setVista('sin-destacar')">Sin destacar</button>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px">
+      <div class="card-flat" style="text-align:center">
+        <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">Total proyectos</div>
+        <div style="font-size:28px;font-weight:700;color:#fff" id="stat-total">—</div>
+      </div>
+      <div class="card-flat" style="text-align:center">
+        <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">Destacados</div>
+        <div style="font-size:28px;font-weight:700;color:var(--amber)" id="stat-destacados">—</div>
+      </div>
+      <div class="card-flat" style="text-align:center">
+        <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">Sin revisar</div>
+        <div style="font-size:28px;font-weight:700;color:var(--blue-light)" id="stat-sin">—</div>
+      </div>
+    </div>
+
+    <div id="proyectos-container">
+      <div class="loading"><div class="spinner"></div> Cargando proyectos...</div>
+    </div>
+  </main>
+</div>
+
+<div id="toast"></div>
+<script src="js/api.js"></script>
+<script src="js/auth-guard.js"></script>
+<script>
+const user = requireAuth([2, 3]); // solo auxiliar y admin
+let todosProyectos = [];
+let vistaActiva = 'todos';
+
+async function cargar() {
+  try {
+    todosProyectos = await Proyectos.listar();
+    actualizarStats();
+    renderProyectos();
+  } catch {
+    document.getElementById('proyectos-container').innerHTML =
+      `<div class="empty-state"><div class="icon">⚠️</div><p>Error al cargar proyectos.</p></div>`;
+  }
+}
+
+function actualizarStats() {
+  const dest = todosProyectos.filter(p => p.destacado).length;
+  document.getElementById('stat-total').textContent = todosProyectos.length;
+  document.getElementById('stat-destacados').textContent = dest;
+  document.getElementById('stat-sin').textContent = todosProyectos.length - dest;
+}
+
+function setVista(v) {
+  vistaActiva = v;
+  renderProyectos();
+}
+
+function renderProyectos() {
+  let items = todosProyectos;
+  if (vistaActiva === 'destacados')  items = items.filter(p => p.destacado);
+  if (vistaActiva === 'sin-destacar') items = items.filter(p => !p.destacado);
+
+  const c = document.getElementById('proyectos-container');
+  if (!items.length) {
+    c.innerHTML = `<div class="empty-state"><div class="icon">📭</div><p>No hay proyectos en esta vista.</p></div>`;
+    return;
+  }
+
+  c.innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Proyecto</th>
+            <th>Autor</th>
+            <th>Stack</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${items.map(p => `
+            <tr id="fila-${p.id_proyecto}">
+              <td>
+                <div style="font-weight:600;color:#fff;font-size:13px">${p.titulo}</div>
+                <div style="font-size:12px;color:var(--text-dim);margin-top:2px">${(p.descripcion||'').substring(0,60)}...</div>
+              </td>
+              <td><span style="font-family:var(--mono);font-size:12px;color:var(--purple-light)">${p.nombre_usuario||'—'}</span></td>
+              <td><div class="stack-tags" style="gap:4px">${stackTagsHTML(p.stack_tecnologico)}</div></td>
+              <td style="font-size:12px;color:var(--text-dim)">${timeSince(p.fecha_creacion)}</td>
+              <td>
+                ${p.destacado
+                  ? `<span class="badge badge-destacado">⭐ Destacado</span>`
+                  : `<span class="badge" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text-dim)">Normal</span>`}
+              </td>
+              <td>
+                <div style="display:flex;gap:6px;align-items:center">
+                  ${p.destacado
+                    ? `<button class="btn btn-ghost btn-sm" onclick="toggleDestacar(${p.id_proyecto}, false)">Quitar destacado</button>`
+                    : `<button class="btn btn-warning btn-sm" onclick="toggleDestacar(${p.id_proyecto}, true)">⭐ Destacar</button>`}
+                  ${p.archivo
+                    ? `<a class="btn btn-ghost btn-sm" href="http://localhost:3000/uploads/${p.archivo}" target="_blank">📄 Ver</a>`
+                    : ''}
+                </div>
+              </td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+async function toggleDestacar(id, valor) {
+  try {
+    await Proyectos.destacar(id, valor);
+    const p = todosProyectos.find(x => x.id_proyecto === id);
+    if (p) p.destacado = valor;
+    actualizarStats();
+    renderProyectos();
+    showToast(valor ? '⭐ Proyecto destacado' : 'Destacado removido');
+  } catch {
+    showToast('Error al actualizar. Verifica el endpoint /proyectos/:id/destacar en tu backend.', 'error');
+  }
+}
+
+cargar();
+</script>
+</body>
+</html>
