@@ -1,126 +1,148 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>SysHub — Mi perfil</title>
-<link rel="stylesheet" href="style.css"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SysHub — Mi perfil</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
-<div class="topbar">
-  <a class="topbar-brand" href="feed.html">🛰️ SYSHUB</a>
-  <div class="topbar-right">
-    <span id="topbar-nombre" style="font-size:13px;color:var(--text-muted)"></span>
-    <div class="avatar" id="topbar-avatar"></div>
-    <button class="btn btn-ghost btn-sm" onclick="logout()">Salir</button>
-  </div>
-</div>
-
-<div class="layout">
-  <nav class="sidebar">
-    <span class="sidebar-label">Navegar</span>
-    <a class="nav-btn" href="feed.html"><svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Feed</a>
-    <a class="nav-btn" href="foros.html"><svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Foros</a>
-    <a class="nav-btn active" href="perfil.html"><svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Mi perfil</a>
-    <a class="nav-btn" href="proyecto-nuevo.html"><svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nueva publicación</a>
-  </nav>
-
-  <main class="main">
-    <!-- HEADER PERFIL -->
-    <div class="card-flat" style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
-      <div class="avatar avatar-lg" id="perfil-avatar"></div>
-      <div style="flex:1">
-        <div style="font-size:20px;font-weight:700;color:#fff" id="perfil-nombre"></div>
-        <div style="font-size:13px;color:var(--text-muted);margin:4px 0" id="perfil-email"></div>
-        <div id="perfil-rol"></div>
-      </div>
-      <button class="btn btn-ghost" onclick="openModal('modal-editar-perfil')">✏️ Editar perfil</button>
-    </div>
-
-    <!-- STATS DEL USUARIO -->
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px">
-      <div class="card-flat" style="text-align:center">
-        <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;margin-bottom:6px">Proyectos</div>
-        <div style="font-size:24px;font-weight:700;color:#fff" id="cnt-proyectos">—</div>
-      </div>
-      <div class="card-flat" style="text-align:center">
-        <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;margin-bottom:6px">Foros</div>
-        <div style="font-size:24px;font-weight:700;color:var(--blue-light)" id="cnt-foros">—</div>
-      </div>
-      <div class="card-flat" style="text-align:center">
-        <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;margin-bottom:6px">Destacados</div>
-        <div style="font-size:24px;font-weight:700;color:var(--amber)" id="cnt-destacados">—</div>
-      </div>
-    </div>
-
-    <!-- MIS PROYECTOS -->
-    <div>
-      <h2 class="section-title" style="font-size:16px;margin-bottom:14px">Mis proyectos</h2>
-      <div id="mis-proyectos">
-        <div class="loading"><div class="spinner"></div> Cargando...</div>
-      </div>
-    </div>
-
-    <!-- MIS FOROS -->
-    <div>
-      <h2 class="section-title" style="font-size:16px;margin-bottom:14px">Mis foros</h2>
-      <div id="mis-foros">
-        <div class="loading"><div class="spinner"></div> Cargando...</div>
-      </div>
-    </div>
-  </main>
-</div>
-
-<!-- MODAL EDITAR PERFIL -->
-<div class="modal-overlay" id="modal-editar-perfil">
-  <div class="modal">
-    <div class="modal-title">Editar perfil
-      <button class="modal-close" onclick="closeModal('modal-editar-perfil')">×</button>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Nombre</label>
-      <input class="form-input" id="ep-nombre"/>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Correo</label>
-      <input class="form-input" type="email" id="ep-email"/>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeModal('modal-editar-perfil')">Cancelar</button>
-      <button class="btn btn-primary" onclick="guardarPerfil()">Guardar</button>
+  <div class="topbar">
+    <a class="topbar-brand" href="feed.html">🛰️ SYSHUB</a>
+    <div class="topbar-right">
+      <span id="topbar-nombre" style="font-size:13px;color:var(--text-muted)"></span>
+      <div class="avatar" id="topbar-avatar"></div>
+      <button class="btn btn-ghost btn-sm" onclick="logout()">Salir</button>
     </div>
   </div>
-</div>
 
-<div id="toast"></div>
-<script src="js/api.js"></script>
-<script src="js/auth-guard.js"></script>
-<script>
-const user = requireAuth();
+  <div class="layout">
+    <nav class="sidebar">
+      <span class="sidebar-label">Navegar</span>
+      <a class="nav-btn" href="feed.html"><svg viewBox="0 0 24 24"
+          style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+          <polyline points="9 22 9 12 15 12 15 22" />
+        </svg>Feed</a>
+      <a class="nav-btn" href="foros.html"><svg viewBox="0 0 24 24"
+          style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round">
+          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+        </svg>Foros</a>
+      <a class="nav-btn active" href="perfil.html"><svg viewBox="0 0 24 24"
+          style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round">
+          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>Mi perfil</a>
+      <a class="nav-btn" href="proyecto-nuevo.html"><svg viewBox="0 0 24 24"
+          style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round">
+          <line x1="12" y1="5" x2="12" y2="19" />
+          <line x1="5" y1="12" x2="19" y2="12" />
+        </svg>Nueva publicación</a>
+    </nav>
 
-// Rellenar header
-document.getElementById('perfil-avatar').textContent = initials(user.nombre);
-document.getElementById('perfil-nombre').textContent = user.nombre;
-document.getElementById('perfil-email').textContent  = user.email;
-document.getElementById('perfil-rol').innerHTML      = badgeRol(user.id_rol);
-document.getElementById('ep-nombre').value = user.nombre;
-document.getElementById('ep-email').value  = user.email;
+    <main class="main">
+      <!-- HEADER PERFIL -->
+      <div class="card-flat" style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+        <div class="avatar avatar-lg" id="perfil-avatar"></div>
+        <div style="flex:1">
+          <div style="font-size:20px;font-weight:700;color:#fff" id="perfil-nombre"></div>
+          <div style="font-size:13px;color:var(--text-muted);margin:4px 0" id="perfil-email"></div>
+          <div id="perfil-rol"></div>
+        </div>
+        <button class="btn btn-ghost" onclick="openModal('modal-editar-perfil')">✏️ Editar perfil</button>
+      </div>
 
-async function cargar() {
-  try {
-    const [proyectos, foros] = await Promise.all([Proyectos.listar(), Foros.listar()]);
-    const misP = proyectos.filter(p => p.id_usuario === user.id_usuario);
-    const misF = foros.filter(f => f.id_usuario === user.id_usuario);
+      <!-- STATS DEL USUARIO -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px">
+        <div class="card-flat" style="text-align:center">
+          <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;margin-bottom:6px">Proyectos</div>
+          <div style="font-size:24px;font-weight:700;color:#fff" id="cnt-proyectos">—</div>
+        </div>
+        <div class="card-flat" style="text-align:center">
+          <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;margin-bottom:6px">Foros</div>
+          <div style="font-size:24px;font-weight:700;color:var(--blue-light)" id="cnt-foros">—</div>
+        </div>
+        <div class="card-flat" style="text-align:center">
+          <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;margin-bottom:6px">Destacados</div>
+          <div style="font-size:24px;font-weight:700;color:var(--amber)" id="cnt-destacados">—</div>
+        </div>
+      </div>
 
-    document.getElementById('cnt-proyectos').textContent  = misP.length;
-    document.getElementById('cnt-foros').textContent      = misF.length;
-    document.getElementById('cnt-destacados').textContent = misP.filter(p => p.destacado).length;
+      <!-- MIS PROYECTOS -->
+      <div>
+        <h2 class="section-title" style="font-size:16px;margin-bottom:14px">Mis proyectos</h2>
+        <div id="mis-proyectos">
+          <div class="loading">
+            <div class="spinner"></div> Cargando...
+          </div>
+        </div>
+      </div>
 
-    // Proyectos
-    const cp = document.getElementById('mis-proyectos');
-    if (!misP.length) {
-      cp.innerHTML = `<div class="empty-state"><div class="icon">📁</div><p>Aún no has publicado proyectos.</p></div>`;
-    } else {
-      cp.innerHTML = misP.map(p => `
+      <!-- MIS FOROS -->
+      <div>
+        <h2 class="section-title" style="font-size:16px;margin-bottom:14px">Mis foros</h2>
+        <div id="mis-foros">
+          <div class="loading">
+            <div class="spinner"></div> Cargando...
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL EDITAR PERFIL -->
+  <div class="modal-overlay" id="modal-editar-perfil">
+    <div class="modal">
+      <div class="modal-title">Editar perfil
+        <button class="modal-close" onclick="closeModal('modal-editar-perfil')">×</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nombre</label>
+        <input class="form-input" id="ep-nombre" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Correo</label>
+        <input class="form-input" type="email" id="ep-email" />
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeModal('modal-editar-perfil')">Cancelar</button>
+        <button class="btn btn-primary" onclick="guardarPerfil()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+  <script src="js/api.js"></script>
+  <script src="js/auth-guard.js"></script>
+  <script>
+    const user = requireAuth();
+
+    // Rellenar header
+    document.getElementById('perfil-avatar').textContent = initials(user.nombre);
+    document.getElementById('perfil-nombre').textContent = user.nombre;
+    document.getElementById('perfil-email').textContent = user.email;
+    document.getElementById('perfil-rol').innerHTML = badgeRol(user.id_rol);
+    document.getElementById('ep-nombre').value = user.nombre;
+    document.getElementById('ep-email').value = user.email;
+
+    async function cargar() {
+      try {
+        const [proyectos, foros] = await Promise.all([Proyectos.listar(), Foros.listar()]);
+        const misP = proyectos.filter(p => p.id_usuario === user.id_usuario);
+        const misF = foros.filter(f => f.id_usuario === user.id_usuario);
+
+        document.getElementById('cnt-proyectos').textContent = misP.length;
+        document.getElementById('cnt-foros').textContent = misF.length;
+        document.getElementById('cnt-destacados').textContent = misP.filter(p => p.destacado).length;
+
+        // Proyectos
+        const cp = document.getElementById('mis-proyectos');
+        if (!misP.length) {
+          cp.innerHTML = `<div class="empty-state"><div class="icon">📁</div><p>Aún no has publicado proyectos.</p></div>`;
+        } else {
+          cp.innerHTML = misP.map(p => `
         <div class="card" style="margin-bottom:0">
           ${p.destacado ? `<div class="destacado-banner">⭐ Destacado por auxiliar</div>` : ''}
           <div style="font-size:15px;font-weight:600;color:#fff;margin-bottom:6px">${p.titulo}</div>
@@ -131,52 +153,53 @@ async function cargar() {
             <button class="btn btn-danger btn-sm" onclick="eliminarMiProyecto(${p.id_proyecto})">🗑️ Eliminar</button>
           </div>
         </div>`).join('');
-    }
+        }
 
-    // Foros
-    const cf = document.getElementById('mis-foros');
-    if (!misF.length) {
-      cf.innerHTML = `<div class="empty-state"><div class="icon">💬</div><p>Aún no has creado foros.</p></div>`;
-    } else {
-      cf.innerHTML = misF.map(f => `
+        // Foros
+        const cf = document.getElementById('mis-foros');
+        if (!misF.length) {
+          cf.innerHTML = `<div class="empty-state"><div class="icon">💬</div><p>Aún no has creado foros.</p></div>`;
+        } else {
+          cf.innerHTML = misF.map(f => `
         <div class="card" style="cursor:pointer" onclick="window.location='foros.html?id=${f.id_foro}'">
           <div style="font-size:15px;font-weight:600;color:#fff;margin-bottom:6px">${f.titulo}</div>
           <div class="post-body">"${f.contenido}"</div>
           <div style="font-size:12px;color:var(--text-dim)">${timeSince(f.fecha_creacion)}</div>
         </div>`).join('');
+        }
+      } catch {
+        showToast('Error al cargar datos', 'error');
+      }
     }
-  } catch {
-    showToast('Error al cargar datos', 'error');
-  }
-}
 
-async function guardarPerfil() {
-  const nombre = document.getElementById('ep-nombre').value.trim();
-  const email  = document.getElementById('ep-email').value.trim();
-  if (!nombre || !email) return showToast('Completa todos los campos', 'error');
-  try {
-    await Usuarios.editar(user.id_usuario, { nombre, email });
-    const updated = { ...user, nombre, email };
-    Session.set(updated);
-    document.getElementById('perfil-nombre').textContent = nombre;
-    document.getElementById('topbar-nombre').textContent = nombre;
-    document.getElementById('topbar-avatar').textContent = initials(nombre);
-    document.getElementById('perfil-avatar').textContent = initials(nombre);
-    showToast('Perfil actualizado');
-    closeModal('modal-editar-perfil');
-  } catch { showToast('Error al actualizar perfil', 'error'); }
-}
+    async function guardarPerfil() {
+      const nombre = document.getElementById('ep-nombre').value.trim();
+      const email = document.getElementById('ep-email').value.trim();
+      if (!nombre || !email) return showToast('Completa todos los campos', 'error');
+      try {
+        await Usuarios.editar(user.id_usuario, { nombre, email });
+        const updated = { ...user, nombre, email };
+        Session.set(updated);
+        document.getElementById('perfil-nombre').textContent = nombre;
+        document.getElementById('topbar-nombre').textContent = nombre;
+        document.getElementById('topbar-avatar').textContent = initials(nombre);
+        document.getElementById('perfil-avatar').textContent = initials(nombre);
+        showToast('Perfil actualizado');
+        closeModal('modal-editar-perfil');
+      } catch { showToast('Error al actualizar perfil', 'error'); }
+    }
 
-async function eliminarMiProyecto(id) {
-  if (!confirm('¿Eliminar este proyecto?')) return;
-  try {
-    await Proyectos.borrar(id);
-    showToast('Proyecto eliminado');
+    async function eliminarMiProyecto(id) {
+      if (!confirm('¿Eliminar este proyecto?')) return;
+      try {
+        await Proyectos.borrar(id);
+        showToast('Proyecto eliminado');
+        cargar();
+      } catch { showToast('Error al eliminar', 'error'); }
+    }
+
     cargar();
-  } catch { showToast('Error al eliminar', 'error'); }
-}
-
-cargar();
-</script>
+  </script>
 </body>
+
 </html>

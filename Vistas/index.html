@@ -1,182 +1,299 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>SysHub — Acceso</title>
-<link rel="stylesheet" href="style.css"/>
-<style>
-  body{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
-  .auth-wrap{width:400px;max-width:100%}
-  .auth-logo{text-align:center;margin-bottom:28px}
-  .auth-logo .logo-text{font-size:26px;font-weight:700;color:#fff;letter-spacing:0.06em}
-  .auth-logo .logo-sub{font-size:13px;color:var(--text-dim);margin-top:4px}
-  .auth-card{background:var(--bg2);border:1px solid var(--border2);border-radius:18px;padding:32px}
-  .tab-bar{display:flex;background:var(--bg3);border-radius:10px;padding:4px;margin-bottom:24px;gap:4px}
-  .tab-btn{flex:1;padding:8px;border:none;border-radius:8px;background:none;color:var(--text-dim);font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s}
-  .tab-btn.active{background:var(--purple);color:#fff}
-  .auth-error{background:#1a0a0a;border:1px solid #7f1d1d;border-radius:8px;padding:10px 12px;font-size:13px;color:#f87171;margin-bottom:14px;display:none}
-  .auth-error.show{display:block}
-  .auth-ok{background:#0a1a0a;border:1px solid #166534;border-radius:8px;padding:10px 12px;font-size:13px;color:#4ade80;margin-bottom:14px;display:none}
-  .auth-ok.show{display:block}
-  .view{display:none}
-  .view.active{display:block}
-  .forgot-link{font-size:12px;color:var(--text-dim);text-align:right;display:block;margin-top:-8px;margin-bottom:16px;cursor:pointer;text-decoration:underline}
-  .forgot-link:hover{color:var(--purple-light)}
-  .back-link{font-size:13px;color:var(--text-dim);text-align:center;margin-top:16px;cursor:pointer}
-  .back-link span{color:var(--purple-light);text-decoration:underline;cursor:pointer}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SysHub — Acceso</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px
+    }
+
+    .auth-wrap {
+      width: 400px;
+      max-width: 100%
+    }
+
+    .auth-logo {
+      text-align: center;
+      margin-bottom: 28px
+    }
+
+    .auth-logo .logo-text {
+      font-size: 26px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.06em
+    }
+
+    .auth-logo .logo-sub {
+      font-size: 13px;
+      color: var(--text-dim);
+      margin-top: 4px
+    }
+
+    .auth-card {
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-radius: 18px;
+      padding: 32px
+    }
+
+    .tab-bar {
+      display: flex;
+      background: var(--bg3);
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 24px;
+      gap: 4px
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      border-radius: 8px;
+      background: none;
+      color: var(--text-dim);
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s
+    }
+
+    .tab-btn.active {
+      background: var(--purple);
+      color: #fff
+    }
+
+    .auth-error {
+      background: #1a0a0a;
+      border: 1px solid #7f1d1d;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 13px;
+      color: #f87171;
+      margin-bottom: 14px;
+      display: none
+    }
+
+    .auth-error.show {
+      display: block
+    }
+
+    .auth-ok {
+      background: #0a1a0a;
+      border: 1px solid #166534;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 13px;
+      color: #4ade80;
+      margin-bottom: 14px;
+      display: none
+    }
+
+    .auth-ok.show {
+      display: block
+    }
+
+    .view {
+      display: none
+    }
+
+    .view.active {
+      display: block
+    }
+
+    .forgot-link {
+      font-size: 12px;
+      color: var(--text-dim);
+      text-align: right;
+      display: block;
+      margin-top: -8px;
+      margin-bottom: 16px;
+      cursor: pointer;
+      text-decoration: underline
+    }
+
+    .forgot-link:hover {
+      color: var(--purple-light)
+    }
+
+    .back-link {
+      font-size: 13px;
+      color: var(--text-dim);
+      text-align: center;
+      margin-top: 16px;
+      cursor: pointer
+    }
+
+    .back-link span {
+      color: var(--purple-light);
+      text-decoration: underline;
+      cursor: pointer
+    }
+  </style>
 </head>
+
 <body>
-<div class="auth-wrap">
-  <div class="auth-logo">
-    <div class="logo-text">🛰️ SYSHUB</div>
-    <div class="logo-sub">Plataforma académica colaborativa · USAC</div>
+  <div class="auth-wrap">
+    <div class="auth-logo">
+      <div class="logo-text">🛰️ SYSHUB</div>
+      <div class="logo-sub">Plataforma académica colaborativa · USAC</div>
+    </div>
+
+    <div class="auth-card">
+      <!-- TABS -->
+      <div class="tab-bar" id="tab-bar">
+        <button class="tab-btn active" onclick="showView('login')">Iniciar sesión</button>
+        <button class="tab-btn" onclick="showView('register')">Registrarse</button>
+      </div>
+
+      <div class="auth-error" id="auth-error"></div>
+      <div class="auth-ok" id="auth-ok"></div>
+
+      <!-- LOGIN -->
+      <div class="view active" id="view-login">
+        <div class="form-group">
+          <label class="form-label">Correo</label>
+          <input class="form-input" type="email" id="l-email" placeholder="usuario@usac.edu.gt" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Contraseña</label>
+          <input class="form-input" type="password" id="l-pass" placeholder="••••••••"
+            onkeydown="if(event.key==='Enter') doLogin()" />
+        </div>
+        <span class="forgot-link" onclick="showView('recover')">¿Olvidaste tu contraseña?</span>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px" onclick="doLogin()">
+          Entrar al sistema
+        </button>
+        <p style="text-align:center;font-size:12px;color:var(--text-dim);margin-top:14px">
+          Demo: <span style="font-family:var(--mono);color:var(--purple-light)">ana@test.com / 123456</span>
+        </p>
+      </div>
+
+      <!-- REGIStrar -->
+      <div class="view" id="view-register">
+        <div class="form-group">
+          <label class="form-label">Nombre completo</label>
+          <input class="form-input" type="text" id="r-nombre" placeholder="Ana María Pérez" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Correo</label>
+          <input class="form-input" type="email" id="r-email" placeholder="usuario@usac.edu.gt" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Contraseña</label>
+          <input class="form-input" type="password" id="r-pass" placeholder="Mínimo 6 caracteres" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirmar contraseña</label>
+          <input class="form-input" type="password" id="r-pass2" placeholder="Repite la contraseña" />
+        </div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px" onclick="doRegister()">
+          Crear cuenta
+        </button>
+      </div>
+
+      <div class="view" id="view-recover">
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">
+          Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña.
+        </p>
+        <div class="form-group">
+          <label class="form-label">Correo registrado</label>
+          <input class="form-input" type="email" id="rec-email" placeholder="usuario@usac.edu.gt" />
+        </div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px" onclick="doRecover()">
+          Enviar enlace
+        </button>
+        <div class="back-link" style="margin-top:16px">
+          <span onclick="showView('login')">← Volver al inicio de sesión</span>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="auth-card">
-    <!-- TABS -->
-    <div class="tab-bar" id="tab-bar">
-      <button class="tab-btn active" onclick="showView('login')">Iniciar sesión</button>
-      <button class="tab-btn"       onclick="showView('register')">Registrarse</button>
-    </div>
+  <div id="toast"></div>
+  <script src="js/api.js"></script>
+  <script>
+    // Si esta logueado, redirigir
+    if (Session.isLogged()) window.location.href = 'feed.html';
 
-    <div class="auth-error" id="auth-error"></div>
-    <div class="auth-ok"    id="auth-ok"></div>
+    function showView(v) {
+      document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+      document.getElementById('view-' + v).classList.add('active');
+      document.querySelectorAll('.tab-btn').forEach((b, i) => {
+        b.classList.toggle('active', (v === 'login' && i === 0) || (v === 'register' && i === 1));
+      });
+      document.getElementById('tab-bar').style.display = v === 'recover' ? 'none' : '';
+      clearMsg();
+    }
 
-    <!-- LOGIN -->
-    <div class="view active" id="view-login">
-      <div class="form-group">
-        <label class="form-label">Correo</label>
-        <input class="form-input" type="email" id="l-email" placeholder="usuario@usac.edu.gt"/>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Contraseña</label>
-        <input class="form-input" type="password" id="l-pass" placeholder="••••••••"
-               onkeydown="if(event.key==='Enter') doLogin()"/>
-      </div>
-      <span class="forgot-link" onclick="showView('recover')">¿Olvidaste tu contraseña?</span>
-      <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px" onclick="doLogin()">
-        Entrar al sistema
-      </button>
-      <p style="text-align:center;font-size:12px;color:var(--text-dim);margin-top:14px">
-        Demo: <span style="font-family:var(--mono);color:var(--purple-light)">ana@test.com / 123456</span>
-      </p>
-    </div>
+    function showErr(msg) {
+      const e = document.getElementById('auth-error');
+      e.textContent = msg; e.classList.add('show');
+      document.getElementById('auth-ok').classList.remove('show');
+    }
+    function showOk(msg) {
+      const e = document.getElementById('auth-ok');
+      e.textContent = msg; e.classList.add('show');
+      document.getElementById('auth-error').classList.remove('show');
+    }
+    function clearMsg() {
+      document.getElementById('auth-error').classList.remove('show');
+      document.getElementById('auth-ok').classList.remove('show');
+    }
 
-    <!-- REGIStrar -->
-    <div class="view" id="view-register">
-      <div class="form-group">
-        <label class="form-label">Nombre completo</label>
-        <input class="form-input" type="text" id="r-nombre" placeholder="Ana María Pérez"/>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Correo</label>
-        <input class="form-input" type="email" id="r-email" placeholder="usuario@usac.edu.gt"/>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Contraseña</label>
-        <input class="form-input" type="password" id="r-pass" placeholder="Mínimo 6 caracteres"/>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Confirmar contraseña</label>
-        <input class="form-input" type="password" id="r-pass2" placeholder="Repite la contraseña"/>
-      </div>
-      <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px" onclick="doRegister()">
-        Crear cuenta
-      </button>
-    </div>
+    async function doLogin() {
+      const email = document.getElementById('l-email').value.trim();
+      const password = document.getElementById('l-pass').value;
+      if (!email || !password) return showErr('Completa todos los campos.');
+      try {
 
-    <div class="view" id="view-recover">
-      <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">
-        Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña.
-      </p>
-      <div class="form-group">
-        <label class="form-label">Correo registrado</label>
-        <input class="form-input" type="email" id="rec-email" placeholder="usuario@usac.edu.gt"/>
-      </div>
-      <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px" onclick="doRecover()">
-        Enviar enlace
-      </button>
-      <div class="back-link" style="margin-top:16px">
-        <span onclick="showView('login')">← Volver al inicio de sesión</span>
-      </div>
-    </div>
-  </div>
-</div>
+        const user = await Auth.login(email, password);
+        Session.set({
+          id_usuario: user.id_usuario,
+          nombre: user.nombre,
+          email: user.email,
+          id_rol: user.id_rol
+        });
+        window.location.href = 'feed.html';
+      } catch (e) {
+        showErr('Credenciales incorrectas.');
+      }
+    }
 
-<div id="toast"></div>
-<script src="js/api.js"></script>
-<script>
-// Si esta logueado, redirigir
-if (Session.isLogged()) window.location.href = 'feed.html';
+    async function doRegister() {
+      const nombre = document.getElementById('r-nombre').value.trim();
+      const email = document.getElementById('r-email').value.trim();
+      const pass = document.getElementById('r-pass').value;
+      const pass2 = document.getElementById('r-pass2').value;
+      if (!nombre || !email || !pass) return showErr('Completa todos los campos.');
+      if (pass !== pass2) return showErr('Las contraseñas no coinciden.');
+      if (pass.length < 6) return showErr('La contraseña debe tener al menos 6 caracteres.');
+      try {
+        await Auth.register(nombre, email, pass);
+        showOk('¡Cuenta creada! Ya puedes iniciar sesion.');
+        showView('login');
+      } catch (e) {
+        showErr('Error al registrar. ¿Ya existe ese correo?');
+      }
+    }
 
-function showView(v) {
-  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
-  document.getElementById('view-' + v).classList.add('active');
-  document.querySelectorAll('.tab-btn').forEach((b, i) => {
-    b.classList.toggle('active', (v==='login' && i===0)||(v==='register' && i===1));
-  });
-  document.getElementById('tab-bar').style.display = v==='recover' ? 'none' : '';
-  clearMsg();
-}
+    async function doRecover() {
+      const email = document.getElementById('rec-email').value.trim();
+      if (!email) return showErr('Ingresa tu correo.');
 
-function showErr(msg) {
-  const e = document.getElementById('auth-error');
-  e.textContent = msg; e.classList.add('show');
-  document.getElementById('auth-ok').classList.remove('show');
-}
-function showOk(msg) {
-  const e = document.getElementById('auth-ok');
-  e.textContent = msg; e.classList.add('show');
-  document.getElementById('auth-error').classList.remove('show');
-}
-function clearMsg() {
-  document.getElementById('auth-error').classList.remove('show');
-  document.getElementById('auth-ok').classList.remove('show');
-}
-
-async function doLogin() {
-  const email    = document.getElementById('l-email').value.trim();
-  const password = document.getElementById('l-pass').value;
-  if (!email || !password) return showErr('Completa todos los campos.');
-  try {
-    
-    const user = await Auth.login(email, password);
-    Session.set({
-      id_usuario: user.id_usuario,
-      nombre:     user.nombre,
-      email:      user.email,
-      id_rol:     user.id_rol
-    });
-    window.location.href = 'feed.html';
-  } catch (e) {
-    showErr('Credenciales incorrectas.');
-  }
-}
-
-async function doRegister() {
-  const nombre   = document.getElementById('r-nombre').value.trim();
-  const email    = document.getElementById('r-email').value.trim();
-  const pass     = document.getElementById('r-pass').value;
-  const pass2    = document.getElementById('r-pass2').value;
-  if (!nombre || !email || !pass) return showErr('Completa todos los campos.');
-  if (pass !== pass2) return showErr('Las contraseñas no coinciden.');
-  if (pass.length < 6) return showErr('La contraseña debe tener al menos 6 caracteres.');
-  try {
-    await Auth.register(nombre, email, pass);
-    showOk('¡Cuenta creada! Ya puedes iniciar sesion.');
-    showView('login');
-  } catch (e) {
-    showErr('Error al registrar. ¿Ya existe ese correo?');
-  }
-}
-
-async function doRecover() {
-  const email = document.getElementById('rec-email').value.trim();
-  if (!email) return showErr('Ingresa tu correo.');
- 
-  showOk('Si el correo existe en el sistema, recibirás un enlace pronto. (Funcionalidad en desarrollo)');
-}
-</script>
+      showOk('Si el correo existe en el sistema, recibirás un enlace pronto. (Funcionalidad en desarrollo)');
+    }
+  </script>
 </body>
+
 </html>

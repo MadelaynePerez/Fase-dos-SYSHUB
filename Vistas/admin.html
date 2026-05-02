@@ -1,180 +1,205 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>SysHub — Panel Admin</title>
-<link rel="stylesheet" href="style.css"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SysHub — Panel Admin</title>
+  <link rel="stylesheet" href="style.css" />
 
 </head>
+
 <body>
-<div class="topbar">
-  <a class="topbar-brand" href="feed.html">🛰️ SYSHUB</a>
-  <div class="topbar-right">
-    <span id="topbar-nombre" style="font-size:13px;color:var(--text-muted)"></span>
-    <div class="avatar" id="topbar-avatar"></div>
-    <button class="btn btn-ghost btn-sm" onclick="logout()">Salir</button>
-  </div>
-</div>
-
-<div class="layout">
-  <nav class="sidebar">
-    <span class="sidebar-label">Navegar</span>
-    <a class="nav-btn" href="feed.html"><svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Feed</a>
-    <a class="nav-btn" href="auxiliar.html"><svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Panel Auxiliar</a>
-    <div class="sidebar-divider"></div>
-    <span class="sidebar-label">Admin</span>
-    <a class="nav-btn active" href="admin.html"><svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>Panel Admin</a>
-  </nav>
-
-  <main class="main-wide">
-    <div>
-      <h1 class="section-title">Panel de Administración</h1>
-      <p class="section-sub">Control total del sistema SysHub</p>
-    </div>
-
-    <!-- TABS -->
-    <div style="display:flex;gap:4px;background:var(--bg3);border-radius:10px;padding:4px;width:fit-content">
-       <button class="btn btn-primary btn-sm" id="tab-usuarios"  onclick="setTab('usuarios')">👥 Usuarios</button>
-  <button class="btn btn-ghost btn-sm"   id="tab-proyectos" onclick="setTab('proyectos')">📁 Proyectos</button>
-  <button class="btn btn-ghost btn-sm"   id="tab-foros"     onclick="setTab('foros')">💬 Foros</button>
-  <button class="btn btn-ghost btn-sm"   id="tab-denuncias" onclick="setTab('denuncias')">🚩 Denuncias</button>
-    </div>
-
-    <!-- STATS -->
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px" id="stats-row">
-      <div class="card-flat" style="text-align:center">
-        <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">Usuarios</div>
-        <div style="font-size:28px;font-weight:700;color:#fff" id="s-usuarios">—</div>
-      </div>
-      <div class="card-flat" style="text-align:center">
-        <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">Proyectos</div>
-        <div style="font-size:28px;font-weight:700;color:var(--purple-light)" id="s-proyectos">—</div>
-      </div>
-      <div class="card-flat" style="text-align:center">
-        <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">Foros</div>
-        <div style="font-size:28px;font-weight:700;color:var(--blue-light)" id="s-foros">—</div>
-      </div>
-      <div class="card-flat" style="text-align:center">
-        <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">Destacados</div>
-        <div style="font-size:28px;font-weight:700;color:var(--amber)" id="s-destacados">—</div>
-      </div>
-    </div>
-
-    <!-- CONTENIDO POR TAB -->
-    <div id="tab-content">
-      <div class="loading"><div class="spinner"></div> Cargando datos...</div>
-    </div>
-  </main>
-</div>
-
-<!-- MODAL EDITAR USUARIO -->
-<div class="modal-overlay" id="modal-edit-user">
-  <div class="modal">
-    <div class="modal-title">Editar usuario
-      <button class="modal-close" onclick="closeModal('modal-edit-user')">×</button>
-    </div>
-    <input type="hidden" id="eu-id"/>
-    <div class="form-group">
-      <label class="form-label">Nombre</label>
-      <input class="form-input" id="eu-nombre"/>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Correo</label>
-      <input class="form-input" type="email" id="eu-email"/>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Rol</label>
-      <select class="form-input" id="eu-rol">
-        <option value="1">Estudiante</option>
-        <option value="2">Auxiliar</option>
-        <option value="3">Administrador</option>
-      </select>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeModal('modal-edit-user')">Cancelar</button>
-      <button class="btn btn-primary" onclick="guardarUsuario()">Guardar cambios</button>
+  <div class="topbar">
+    <a class="topbar-brand" href="feed.html">🛰️ SYSHUB</a>
+    <div class="topbar-right">
+      <span id="topbar-nombre" style="font-size:13px;color:var(--text-muted)"></span>
+      <div class="avatar" id="topbar-avatar"></div>
+      <button class="btn btn-ghost btn-sm" onclick="logout()">Salir</button>
     </div>
   </div>
-</div>
 
-<!-- MODAL CREAR USUARIO -->
-<div class="modal-overlay" id="modal-nuevo-user">
-  <div class="modal">
-    <div class="modal-title">Crear usuario
-      <button class="modal-close" onclick="closeModal('modal-nuevo-user')">×</button>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Nombre completo</label>
-      <input class="form-input" id="nu-nombre" placeholder="Nombre del usuario"/>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Correo</label>
-      <input class="form-input" type="email" id="nu-email" placeholder="correo@usac.edu.gt"/>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Contraseña</label>
-      <input class="form-input" type="password" id="nu-pass" placeholder="Mínimo 6 caracteres"/>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Rol</label>
-      <select class="form-input" id="nu-rol">
-        <option value="1">Estudiante</option>
-        <option value="2">Auxiliar</option>
-        <option value="3">Administrador</option>
-      </select>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeModal('modal-nuevo-user')">Cancelar</button>
-      <button class="btn btn-primary" onclick="crearUsuario()">Crear usuario</button>
+  <div class="layout">
+    <nav class="sidebar">
+      <span class="sidebar-label">Navegar</span>
+      <a class="nav-btn" href="feed.html"><svg viewBox="0 0 24 24"
+          style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+          <polyline points="9 22 9 12 15 12 15 22" />
+        </svg>Feed</a>
+      <a class="nav-btn" href="auxiliar.html"><svg viewBox="0 0 24 24"
+          style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round">
+          <polygon
+            points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+        </svg>Panel Auxiliar</a>
+      <div class="sidebar-divider"></div>
+      <span class="sidebar-label">Admin</span>
+      <a class="nav-btn active" href="admin.html"><svg viewBox="0 0 24 24"
+          style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round">
+          <circle cx="12" cy="12" r="3" />
+          <path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14" />
+        </svg>Panel Admin</a>
+    </nav>
+
+    <main class="main-wide">
+      <div>
+        <h1 class="section-title">Panel de Administración</h1>
+        <p class="section-sub">Control total del sistema SysHub</p>
+      </div>
+
+      <!-- TABS -->
+      <div style="display:flex;gap:4px;background:var(--bg3);border-radius:10px;padding:4px;width:fit-content">
+        <button class="btn btn-primary btn-sm" id="tab-usuarios" onclick="setTab('usuarios')">👥 Usuarios</button>
+        <button class="btn btn-ghost btn-sm" id="tab-proyectos" onclick="setTab('proyectos')">📁 Proyectos</button>
+        <button class="btn btn-ghost btn-sm" id="tab-foros" onclick="setTab('foros')">💬 Foros</button>
+        <button class="btn btn-ghost btn-sm" id="tab-denuncias" onclick="setTab('denuncias')">🚩 Denuncias</button>
+      </div>
+
+      <!-- STATS -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px" id="stats-row">
+        <div class="card-flat" style="text-align:center">
+          <div
+            style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">
+            Usuarios</div>
+          <div style="font-size:28px;font-weight:700;color:#fff" id="s-usuarios">—</div>
+        </div>
+        <div class="card-flat" style="text-align:center">
+          <div
+            style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">
+            Proyectos</div>
+          <div style="font-size:28px;font-weight:700;color:var(--purple-light)" id="s-proyectos">—</div>
+        </div>
+        <div class="card-flat" style="text-align:center">
+          <div
+            style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">
+            Foros</div>
+          <div style="font-size:28px;font-weight:700;color:var(--blue-light)" id="s-foros">—</div>
+        </div>
+        <div class="card-flat" style="text-align:center">
+          <div
+            style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">
+            Destacados</div>
+          <div style="font-size:28px;font-weight:700;color:var(--amber)" id="s-destacados">—</div>
+        </div>
+      </div>
+
+      <!-- CONTENIDO POR TAB -->
+      <div id="tab-content">
+        <div class="loading">
+          <div class="spinner"></div> Cargando datos...
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL EDITAR USUARIO -->
+  <div class="modal-overlay" id="modal-edit-user">
+    <div class="modal">
+      <div class="modal-title">Editar usuario
+        <button class="modal-close" onclick="closeModal('modal-edit-user')">×</button>
+      </div>
+      <input type="hidden" id="eu-id" />
+      <div class="form-group">
+        <label class="form-label">Nombre</label>
+        <input class="form-input" id="eu-nombre" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Correo</label>
+        <input class="form-input" type="email" id="eu-email" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Rol</label>
+        <select class="form-input" id="eu-rol">
+          <option value="1">Estudiante</option>
+          <option value="2">Auxiliar</option>
+          <option value="3">Administrador</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeModal('modal-edit-user')">Cancelar</button>
+        <button class="btn btn-primary" onclick="guardarUsuario()">Guardar cambios</button>
+      </div>
     </div>
   </div>
-</div>
 
-    <div id="toast"></div>
+  <!-- MODAL CREAR USUARIO -->
+  <div class="modal-overlay" id="modal-nuevo-user">
+    <div class="modal">
+      <div class="modal-title">Crear usuario
+        <button class="modal-close" onclick="closeModal('modal-nuevo-user')">×</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nombre completo</label>
+        <input class="form-input" id="nu-nombre" placeholder="Nombre del usuario" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Correo</label>
+        <input class="form-input" type="email" id="nu-email" placeholder="correo@usac.edu.gt" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contraseña</label>
+        <input class="form-input" type="password" id="nu-pass" placeholder="Mínimo 6 caracteres" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Rol</label>
+        <select class="form-input" id="nu-rol">
+          <option value="1">Estudiante</option>
+          <option value="2">Auxiliar</option>
+          <option value="3">Administrador</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeModal('modal-nuevo-user')">Cancelar</button>
+        <button class="btn btn-primary" onclick="crearUsuario()">Crear usuario</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
   <script src="js/api.js"></script>
   <script src="js/auth-guard.js"></script>
   <script>
-const user = requireAuth([3]); // solo admin
-let tabActivo = 'usuarios';
-let dataCache = {};
+    const user = requireAuth([3]); // solo admin
+    let tabActivo = 'usuarios';
+    let dataCache = {};
 
-async function cargarTodo() {
-  try {
-    const [usuarios, proyectos, foros] = await Promise.all([
-      Usuarios.listar(), Proyectos.listar(), Foros.listar()
-    ]);
-    dataCache = { usuarios, proyectos, foros };
-    document.getElementById('s-usuarios').textContent = usuarios.length;
-    document.getElementById('s-proyectos').textContent = proyectos.length;
-    document.getElementById('s-foros').textContent = foros.length;
-    document.getElementById('s-destacados').textContent = proyectos.filter(p=>p.destacado).length;
-    renderTab();
-  } catch {
-    document.getElementById('tab-content').innerHTML =
-      `<div class="empty-state"><div class="icon">⚠️</div><p>Error al cargar datos del servidor.</p></div>`;
-  }
-}
+    async function cargarTodo() {
+      try {
+        const [usuarios, proyectos, foros] = await Promise.all([
+          Usuarios.listar(), Proyectos.listar(), Foros.listar()
+        ]);
+        dataCache = { usuarios, proyectos, foros };
+        document.getElementById('s-usuarios').textContent = usuarios.length;
+        document.getElementById('s-proyectos').textContent = proyectos.length;
+        document.getElementById('s-foros').textContent = foros.length;
+        document.getElementById('s-destacados').textContent = proyectos.filter(p => p.destacado).length;
+        renderTab();
+      } catch {
+        document.getElementById('tab-content').innerHTML =
+          `<div class="empty-state"><div class="icon">⚠️</div><p>Error al cargar datos del servidor.</p></div>`;
+      }
+    }
 
-function setTab(t) {
-  tabActivo = t;
-  ['usuarios','proyectos','foros','denuncias'].forEach(tab => {
-    const btn = document.getElementById('tab-'+tab);
-    btn.className = 'btn btn-sm ' + (tab===t ? 'btn-primary' : 'btn-ghost');
-  });
-  renderTab();
-}
+    function setTab(t) {
+      tabActivo = t;
+      ['usuarios', 'proyectos', 'foros', 'denuncias'].forEach(tab => {
+        const btn = document.getElementById('tab-' + tab);
+        btn.className = 'btn btn-sm ' + (tab === t ? 'btn-primary' : 'btn-ghost');
+      });
+      renderTab();
+    }
 
-function renderTab() {
-  const c = document.getElementById('tab-content');
-  if (tabActivo === 'usuarios')   c.innerHTML = renderUsuarios();
-  if (tabActivo === 'proyectos')  c.innerHTML = renderProyectos();
-  if (tabActivo === 'foros')      c.innerHTML = renderForos();
-  if (tabActivo === 'denuncias')  renderDenuncias(); 
-}
+    function renderTab() {
+      const c = document.getElementById('tab-content');
+      if (tabActivo === 'usuarios') c.innerHTML = renderUsuarios();
+      if (tabActivo === 'proyectos') c.innerHTML = renderProyectos();
+      if (tabActivo === 'foros') c.innerHTML = renderForos();
+      if (tabActivo === 'denuncias') renderDenuncias();
+    }
 
-function renderUsuarios() {
-  const us = dataCache.usuarios || [];
-  return `
+    function renderUsuarios() {
+      const us = dataCache.usuarios || [];
+      return `
     <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
       <button class="btn btn-primary btn-sm" onclick="openModal('modal-nuevo-user')">+ Crear usuario</button>
     </div>
@@ -189,9 +214,9 @@ function renderUsuarios() {
               <td style="font-size:12px;color:var(--text-muted);font-family:var(--mono)">${u.email}</td>
               <td>${badgeRol(u.id_rol)}</td>
               <td>
-                ${u.suspendido 
-                  ? `<span class="badge badge-admin">🚫 Suspendido</span>`
-                  : `<span class="badge badge-foro">✅ Activo</span>`}
+                ${u.suspendido
+          ? `<span class="badge badge-admin">🚫 Suspendido</span>`
+          : `<span class="badge badge-foro">✅ Activo</span>`}
               </td>
               <td style="font-size:12px;color:var(--text-dim)">${timeSince(u.fecha_creacion)}</td>
               <td>
@@ -214,16 +239,16 @@ function renderUsuarios() {
         </tbody>
       </table>
     </div>`;
-}
-async function renderDenuncias() {
-  const c = document.getElementById('tab-content');
-  try {
-    const denuncias = await apiFetch('/denuncias');
-    if (!denuncias.length) {
-      c.innerHTML = `<div class="empty-state"><div class="icon">✅</div><p>Sin denuncias pendientes.</p></div>`;
-      return;
     }
-    c.innerHTML = `
+    async function renderDenuncias() {
+      const c = document.getElementById('tab-content');
+      try {
+        const denuncias = await apiFetch('/denuncias');
+        if (!denuncias.length) {
+          c.innerHTML = `<div class="empty-state"><div class="icon">✅</div><p>Sin denuncias pendientes.</p></div>`;
+          return;
+        }
+        c.innerHTML = `
       <div class="table-wrap">
         <table>
           <thead>
@@ -242,13 +267,12 @@ async function renderDenuncias() {
               <tr>
                 <td><span class="badge badge-proyecto">${d.tipo}</span></td>
                 <td style="color:var(--text-dim)">#${d.id_referencia}</td>
-                <td style="font-size:12px;color:var(--purple-light)">${d.nombre_denunciante||'—'}</td>
+                <td style="font-size:12px;color:var(--purple-light)">${d.nombre_denunciante || '—'}</td>
                 <td style="font-size:13px">${d.motivo}</td>
                 <td>
-                  <span class="badge ${
-                    d.estado==='pendiente' ? 'badge-admin' : 
-                    d.estado==='revisada'  ? 'badge-auxiliar' : 
-                    'badge-foro'}">
+                  <span class="badge ${d.estado === 'pendiente' ? 'badge-admin' :
+            d.estado === 'revisada' ? 'badge-auxiliar' :
+              'badge-foro'}">
                     ${d.estado}
                   </span>
                 </td>
@@ -269,36 +293,36 @@ async function renderDenuncias() {
           </tbody>
         </table>
       </div>`;
-  } catch {
-    c.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><p>Error al cargar denuncias.</p></div>`;
-  }
-}
+      } catch {
+        c.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><p>Error al cargar denuncias.</p></div>`;
+      }
+    }
 
-async function cambiarDenuncia(id, estado) {
-  try {
-    await apiFetch(`/denuncias/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify({ estado })
-    });
-    showToast('Denuncia actualizada');
-    renderDenuncias();
-  } catch { showToast('Error', 'error'); }
-}
-async function suspenderUsuario(id, suspendido) {
-  const nuevoEstado = suspendido === 1 ? 0 : 1;
-  if (!confirm(`¿Deseas ${nuevoEstado ? 'suspender' : 'activar'} este usuario?`)) return;
-  try {
-    await apiFetch(`/usuarios/${id}/suspender`, {
-      method: 'PUT',
-      body: JSON.stringify({ suspendido: nuevoEstado })
-    });
-    showToast(nuevoEstado ? '🚫 Usuario suspendido' : '✅ Usuario activado');
-    cargarTodo();
-  } catch { showToast('Error al actualizar', 'error'); }
-}
-function renderProyectos() {
-  const ps = dataCache.proyectos || [];
-  return `
+    async function cambiarDenuncia(id, estado) {
+      try {
+        await apiFetch(`/denuncias/${id}`, {
+          method: 'PUT',
+          body: JSON.stringify({ estado })
+        });
+        showToast('Denuncia actualizada');
+        renderDenuncias();
+      } catch { showToast('Error', 'error'); }
+    }
+    async function suspenderUsuario(id, suspendido) {
+      const nuevoEstado = suspendido === 1 ? 0 : 1;
+      if (!confirm(`¿Deseas ${nuevoEstado ? 'suspender' : 'activar'} este usuario?`)) return;
+      try {
+        await apiFetch(`/usuarios/${id}/suspender`, {
+          method: 'PUT',
+          body: JSON.stringify({ suspendido: nuevoEstado })
+        });
+        showToast(nuevoEstado ? '🚫 Usuario suspendido' : '✅ Usuario activado');
+        cargarTodo();
+      } catch { showToast('Error al actualizar', 'error'); }
+    }
+    function renderProyectos() {
+      const ps = dataCache.proyectos || [];
+      return `
     <div class="table-wrap">
       <table>
         <thead><tr><th>Título</th><th>Autor</th><th>Stack</th><th>Estado</th><th>Acciones</th></tr></thead>
@@ -306,8 +330,8 @@ function renderProyectos() {
           ${ps.map(p => `
             <tr>
               <td><div style="font-weight:600;font-size:13px;color:#fff">${p.titulo}</div>
-                  <div style="font-size:11px;color:var(--text-dim)">${(p.descripcion||'').substring(0,50)}...</div></td>
-              <td style="font-size:12px;color:var(--purple-light);font-family:var(--mono)">${p.nombre_usuario||'—'}</td>
+                  <div style="font-size:11px;color:var(--text-dim)">${(p.descripcion || '').substring(0, 50)}...</div></td>
+              <td style="font-size:12px;color:var(--purple-light);font-family:var(--mono)">${p.nombre_usuario || '—'}</td>
               <td><div class="stack-tags">${stackTagsHTML(p.stack_tecnologico)}</div></td>
               <td>${p.destacado ? `<span class="badge badge-destacado">⭐ Destacado</span>` : `<span class="badge" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text-dim)">Normal</span>`}</td>
               <td>
@@ -320,11 +344,11 @@ function renderProyectos() {
         </tbody>
       </table>
     </div>`;
-}
+    }
 
-function renderForos() {
-  const fs = dataCache.foros || [];
-  return `
+    function renderForos() {
+      const fs = dataCache.foros || [];
+      return `
     <div class="table-wrap">
       <table>
         <thead><tr><th>Título</th><th>Autor</th><th>Fecha</th><th>Acciones</th></tr></thead>
@@ -332,8 +356,8 @@ function renderForos() {
           ${fs.map(f => `
             <tr>
               <td><div style="font-weight:600;font-size:13px;color:#fff">${f.titulo}</div>
-                  <div style="font-size:11px;color:var(--text-dim)">${(f.contenido||'').substring(0,60)}...</div></td>
-              <td style="font-size:12px;color:var(--purple-light);font-family:var(--mono)">${f.nombre_usuario||'—'}</td>
+                  <div style="font-size:11px;color:var(--text-dim)">${(f.contenido || '').substring(0, 60)}...</div></td>
+              <td style="font-size:12px;color:var(--purple-light);font-family:var(--mono)">${f.nombre_usuario || '—'}</td>
               <td style="font-size:12px;color:var(--text-dim)">${timeSince(f.fecha_creacion)}</td>
               <td>
                 <div style="display:flex;gap:6px">
@@ -345,80 +369,81 @@ function renderForos() {
         </tbody>
       </table>
     </div>`;
-}
-
-// 
-function abrirEditarUsuario(id, nombre, email, id_rol) {
-  document.getElementById('eu-id').value    = id;
-  document.getElementById('eu-nombre').value = nombre;
-  document.getElementById('eu-email').value  = email;
-  document.getElementById('eu-rol').value    = id_rol;
-  openModal('modal-edit-user');
-}
-
-async function guardarUsuario() {
-  const id     = document.getElementById('eu-id').value;
-  const nombre = document.getElementById('eu-nombre').value.trim();
-  const email  = document.getElementById('eu-email').value.trim();
-  const id_rol = parseInt(document.getElementById('eu-rol').value);
-  try {
-    await Usuarios.editar(id, { nombre, email, id_rol });
-    showToast('Usuario actualizado');
-    closeModal('modal-edit-user');
-    cargarTodo();
-  } catch { showToast('Error al actualizar', 'error'); }
-}
-
-async function crearUsuario() {
-  const nombre = document.getElementById('nu-nombre').value.trim();
-  const email  = document.getElementById('nu-email').value.trim();
-  const pass   = document.getElementById('nu-pass').value;
-  const id_rol = parseInt(document.getElementById('nu-rol').value);
-  if (!nombre || !email || !pass) return showToast('Completa todos los campos', 'error');
-  try {
-    await Auth.register(nombre, email, pass);
-    // Asignar rol si no es estudiante
-    if (id_rol !== 1) {
-      const usuarios = await Usuarios.listar();
-      const nuevo = usuarios.find(u => u.email === email);
-      if (nuevo) await Usuarios.cambiarRol(nuevo.id_usuario, id_rol);
     }
-    showToast('Usuario creado');
-    closeModal('modal-nuevo-user');
-    cargarTodo();
-  } catch { showToast('Error al crear usuario', 'error'); }
-}
 
-async function eliminarUsuario(id, nombre) {
-  if (!confirm(`¿Eliminar al usuario "${nombre}"? Esta acción no se puede deshacer.`)) return;
-  try {
-    await Usuarios.borrar(id);
-    showToast('Usuario eliminado');
-    cargarTodo();
-  } catch { showToast('Error al eliminar', 'error'); }
-}
+    // 
+    function abrirEditarUsuario(id, nombre, email, id_rol) {
+      document.getElementById('eu-id').value = id;
+      document.getElementById('eu-nombre').value = nombre;
+      document.getElementById('eu-email').value = email;
+      document.getElementById('eu-rol').value = id_rol;
+      openModal('modal-edit-user');
+    }
 
-// acciones de proyectoss
-async function eliminarProyecto(id, titulo) {
-  if (!confirm(`¿Eliminar el proyecto "${titulo}"?`)) return;
-  try {
-    await Proyectos.borrar(id);
-    showToast('Proyecto eliminado');
-    cargarTodo();
-  } catch { showToast('Error al eliminar', 'error'); }
-}
+    async function guardarUsuario() {
+      const id = document.getElementById('eu-id').value;
+      const nombre = document.getElementById('eu-nombre').value.trim();
+      const email = document.getElementById('eu-email').value.trim();
+      const id_rol = parseInt(document.getElementById('eu-rol').value);
+      try {
+        await Usuarios.editar(id, { nombre, email, id_rol });
+        showToast('Usuario actualizado');
+        closeModal('modal-edit-user');
+        cargarTodo();
+      } catch { showToast('Error al actualizar', 'error'); }
+    }
 
-// accion de foros
-async function eliminarForo(id, titulo) {
-  if (!confirm(`¿Eliminar el foro "${titulo}"?`)) return;
-  try {
-    await Foros.borrar(id);
-    showToast('Foro eliminado');
-    cargarTodo();
-  } catch { showToast('Error al eliminar', 'error'); }
-}
+    async function crearUsuario() {
+      const nombre = document.getElementById('nu-nombre').value.trim();
+      const email = document.getElementById('nu-email').value.trim();
+      const pass = document.getElementById('nu-pass').value;
+      const id_rol = parseInt(document.getElementById('nu-rol').value);
+      if (!nombre || !email || !pass) return showToast('Completa todos los campos', 'error');
+      try {
+        await Auth.register(nombre, email, pass);
+        // Asignar rol si no es estudiante
+        if (id_rol !== 1) {
+          const usuarios = await Usuarios.listar();
+          const nuevo = usuarios.find(u => u.email === email);
+          if (nuevo) await Usuarios.cambiarRol(nuevo.id_usuario, id_rol);
+        }
+        showToast('Usuario creado');
+        closeModal('modal-nuevo-user');
+        cargarTodo();
+      } catch { showToast('Error al crear usuario', 'error'); }
+    }
 
-cargarTodo();
-</script>
+    async function eliminarUsuario(id, nombre) {
+      if (!confirm(`¿Eliminar al usuario "${nombre}"? Esta acción no se puede deshacer.`)) return;
+      try {
+        await Usuarios.borrar(id);
+        showToast('Usuario eliminado');
+        cargarTodo();
+      } catch { showToast('Error al eliminar', 'error'); }
+    }
+
+    // acciones de proyectoss
+    async function eliminarProyecto(id, titulo) {
+      if (!confirm(`¿Eliminar el proyecto "${titulo}"?`)) return;
+      try {
+        await Proyectos.borrar(id);
+        showToast('Proyecto eliminado');
+        cargarTodo();
+      } catch { showToast('Error al eliminar', 'error'); }
+    }
+
+    // accion de foros
+    async function eliminarForo(id, titulo) {
+      if (!confirm(`¿Eliminar el foro "${titulo}"?`)) return;
+      try {
+        await Foros.borrar(id);
+        showToast('Foro eliminado');
+        cargarTodo();
+      } catch { showToast('Error al eliminar', 'error'); }
+    }
+
+    cargarTodo();
+  </script>
 </body>
+
 </html>
