@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>SysHub — Artículo</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+        .articulo-contenido {
+            font-size: 15px;
+            line-height: 1.8;
+            color: var(--text);
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="topbar">
+        <a class="topbar-brand" href="feed.html">🛰️ SYSHUB</a>
+        <div class="topbar-right">
+            <span id="topbar-nombre" style="font-size:13px;color:var(--text-muted)"></span>
+            <div class="avatar" id="topbar-avatar"></div>
+            <button class="btn btn-ghost btn-sm" onclick="logout()">Salir</button>
+        </div>
+    </div>
+
+    <div class="layout">
+        <nav class="sidebar">
+            <a class="nav-btn" href="feed.html">
+                <svg viewBox="0 0 24 24"
+                    style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                    <polyline points="9 22 9 12 15 12 15 22" />
+                </svg>Feed
+            </a>
+            <a class="nav-btn" href="foros.html">
+                <svg viewBox="0 0 24 24"
+                    style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round">
+                    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+                </svg>Foros
+            </a>
+        </nav>
+
+        <main class="main" style="max-width:780px">
+            <button class="btn btn-ghost btn-sm" onclick="history.back()" style="align-self:flex-start">
+                ← Volver
+            </button>
+            <div id="articulo-container">
+                <div class="loading">
+                    <div class="spinner"></div> Cargando artículo...
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="toast"></div>
+    <script src="js/api.js"></script>
+    <script src="js/auth-guard.js"></script>
+    <script>
+        const user = requireAuth();
+        const params = new URLSearchParams(location.search);
+        const id = params.get('id');
+
+        async function cargarArticulo() {
+            try {
+                const articulos = await apiFetch('/articulos');
+                const articulo = articulos.find(a => a.id_articulo == id);
+                if (!articulo) {
+                    document.getElementById('articulo-container').innerHTML =
+                        `<div class="empty-state"><div class="icon">😕</div><p>Artículo no encontrado.</p></div>`;
+                    return;
+                }
+                document.title = `SysHub — ${articulo.titulo}`;
+                document.getElementById('articulo-container').innerHTML = `
+      <div class="card-flat">
+        <div style="margin-bottom:20px">
+          <span class="badge badge-articulo">${articulo.tipo || 'ARTÍCULO'}</span>
+        </div>
+        <h1 style="font-size:24px;font-weight:700;color:#fff;margin-bottom:12px">
+          ${articulo.titulo}
+        </h1>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:24px">
+          <div class="post-avatar">${initials(articulo.nombre_usuario || 'US')}</div>
+          <div>
+            <div class="post-user">${articulo.nombre_usuario || 'Estudiante'}</div>
+            <div class="post-time">${timeSince(articulo.fecha_publicacion)}</div>
+          </div>
+        </div>
+        <div class="articulo-contenido">${articulo.contenido}</div>
+        <div style="margin-top:24px;display:flex;gap:8px">
+          <button class="action-btn" onclick="votar(${articulo.id_articulo},1)">👍 Me ayudó</button>
+          <button class="action-btn" onclick="votar(${articulo.id_articulo},-1)">👎</button>
+          <button class="action-btn" onclick="reportar(${articulo.id_articulo})">🚩 Reportar</button>
+        </div>
+      </div>`;
+            } catch {
+                document.getElementById('articulo-container').innerHTML =
+                    `<div class="empty-state"><div class="icon">⚠️</div><p>Error al cargar.</p></div>`;
+            }
+        }
+
+        async function votar(id, valor) {
+            try {
+                await Votos.votar('articulo', id, user.id_usuario, valor);
+                showToast(valor > 0 ? '👍 ¡Gracias!' : '👎 Registrado');
+            } catch { showToast('Error al votar', 'error'); }
+        }
+
+        async function reportar(id) {
+            const motivo = prompt('¿Por qué reportas este artículo?');
+            if (!motivo) return;
+            try {
+                await apiFetch('/denuncias', {
+                    method: 'POST',
+                    body: JSON.stringify({ tipo: 'articulo', id_referencia: id, id_usuario: user.id_usuario, motivo })
+                });
+                showToast('🚩 Reporte enviado');
+            } catch { showToast('Error', 'error'); }
+        }
+
+        cargarArticulo();
+    </script>
+</body>
+
+</html>

@@ -181,15 +181,20 @@
 
     async function cargarFeed() {
       try {
-        const [proyectos, foros] = await Promise.all([Proyectos.listar(), Foros.listar()]);
+        const [proyectos, foros, articulos] = await Promise.all([
+          Proyectos.listar(),
+          Foros.listar(),
+          apiFetch('/articulos')
+        ]);
         todosLosItems = [
           ...proyectos.map(p => ({ ...p, _tipo: 'proyecto' })),
           ...foros.map(f => ({ ...f, _tipo: 'foro' })),
-        ].sort((a, b) => new Date(b.fecha_creacion) - new Date(a.fecha_creacion));
+          ...articulos.map(a => ({ ...a, _tipo: 'articulo' })),
+        ].sort((a, b) => new Date(b.fecha_creacion || b.fecha_publicacion) - new Date(a.fecha_creacion || a.fecha_publicacion));
         renderFeed();
       } catch {
         document.getElementById('feed-container').innerHTML =
-          `<div class="empty-state"><div class="icon">⚠️</div><p>No se pudo conectar al servidor.</p></div>`;
+          `<div class="empty-state"><div class="icon">⚠️</div><p>Error al conectar.</p></div>`;
       }
     }
 
@@ -228,42 +233,55 @@
     }
 
     function renderItem(item) {
+      const isArticulo = item._tipo === 'articulo';
       const isForo = item._tipo === 'foro';
       const ini = initials(item.nombre_usuario || 'US');
-      const body = isForo ? item.contenido : item.descripcion;
+      const body = isForo ? item.contenido : item.descripcion || item.contenido;
+      const id = isForo ? item.id_foro : isArticulo ? item.id_articulo : item.id_proyecto;
+
       const badge = isForo
         ? `<span class="badge badge-foro">FORO</span>`
-        : `<span class="badge badge-proyecto">PROYECTO</span>`;
+        : isArticulo
+          ? `<span class="badge badge-articulo">ARTÍCULO</span>`
+          : `<span class="badge badge-proyecto">PROYECTO</span>`;
+
       const dest = item.destacado
-        ? `<div class="destacado-banner">⭐ Proyecto destacado por auxiliar</div>` : '';
-      const stack = !isForo && item.stack_tecnologico
+        ? `<div class="destacado-banner">⭐ Proyecto destacado</div>` : '';
+
+      const stack = !isForo && !isArticulo && item.stack_tecnologico
         ? `<div class="stack-tags">${stackTagsHTML(item.stack_tecnologico)}</div>` : '';
-      const archivo = !isForo && item.archivo
+
+      const tags = item.tags
+        ? `<div class="stack-tags">${item.tags.split(',').map(t => `<span class="stack-tag">🏷️ ${t.trim()}</span>`).join('')}</div>` : '';
+
+      const archivo = !isForo && !isArticulo && item.archivo
         ? `<a class="file-link" href="http://localhost:3000/uploads/${item.archivo}" target="_blank">📄 ${item.archivo}</a>` : '';
-      const id = isForo ? item.id_foro : item.id_proyecto;
 
       return `
-  <div class="card" style="margin-bottom:0">
+  <div class="card">
     ${dest}
     <div class="post-header">
       <div class="post-avatar">${ini}</div>
       <div style="flex:1">
         <div class="post-user">${item.nombre_usuario || 'Estudiante'}</div>
-        <div class="post-time">${timeSince(item.fecha_creacion)}</div>
+        <div class="post-time">${timeSince(item.fecha_creacion || item.fecha_publicacion)}</div>
       </div>
       ${badge}
     </div>
     <div style="font-size:15px;font-weight:600;color:#fff;margin-bottom:8px">${item.titulo}</div>
-    <div class="post-body">"${body}"</div>
+    <div class="post-body">"${(body || '').substring(0, 200)}${body && body.length > 200 ? '...' : ''}"</div>
     ${stack}
+    ${tags}
     <div class="post-footer">
       <div class="post-actions">
-        ${isForo
-          ? `<button class="action-btn" onclick="window.location='Foros.html?id=${id}'">💬 Ver discusión</button>`
-          : `<button class="action-btn" onclick="abrirComentarios(${id})">💬 Comentar</button>`
+        ${isArticulo
+          ? `<button class="action-btn" onclick="window.location='articulo-detalle.html?id=${id}'">📖 Leer completo</button>`
+          : isForo
+            ? `<button class="action-btn" onclick="window.location='foros.html?id=${id}'">💬 Ver discusión</button>`
+            : `<button class="action-btn" onclick="abrirComentarios(${id})">💬 Comentar</button>`
         }
-        <button class="action-btn" id="like-${item._tipo}-${id}" onclick="votar('${item._tipo}',${id},1)">👍 <span id="likes-${item._tipo}-${id}">0</span></button>
-        <button class="action-btn" id="dis-${item._tipo}-${id}"  onclick="votar('${item._tipo}',${id},-1)">👎</button>
+        <button class="action-btn" onclick="votar('${item._tipo}',${id},1)">👍 <span id="likes-${item._tipo}-${id}">0</span></button>
+        <button class="action-btn" onclick="votar('${item._tipo}',${id},-1)">👎</button>
         <button class="action-btn" onclick="reportar('${item._tipo}',${id})">🚩 Reportar</button>
         ${archivo}
       </div>
