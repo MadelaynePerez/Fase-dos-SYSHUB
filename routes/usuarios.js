@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const db = require("../Database");
 
-// LISTAR USUARIOS
+// listar a los usuarios
 router.get("/", (req, res) => {
   const sql = `
     SELECT u.*, r.nombre AS nombre_rol
@@ -16,7 +16,7 @@ router.get("/", (req, res) => {
   });
 });
 
-// EDITAR USUARIO
+// Eedit a usuairos 
 router.put("/:id", (req, res) => {
   const { id } = req.params;
   const { nombre, email, id_rol } = req.body; 
@@ -28,8 +28,17 @@ router.put("/:id", (req, res) => {
     res.send("Usuario actualizado");
   });
 });
+//suspenderr susuario
+router.put("/:id/suspender", (req, res) => {
+  const { suspendido } = req.body;
+  db.query(
+    "UPDATE usuarios SET suspendido=? WHERE id_usuario=?",
+    [suspendido, req.params.id],
+    (err) => { if (err) return res.status(500).send(err); res.send("OK"); }
+  );
+});
 
-// ELIMINAR USUARIO
+// eliminar usuarioo
 router.delete("/:id", (req, res) => {
   const { id } = req.params;
 

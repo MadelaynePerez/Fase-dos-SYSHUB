@@ -20,13 +20,22 @@ router.post("/", (req, res) => {
   db.query(
     "INSERT INTO articulos (titulo, contenido, tipo, id_usuario) VALUES (?,?,?,?)",
     [titulo, contenido, tipo, id_usuario],
-    (err) => { if (err) return res.status(500).send(err); res.send("OK"); }
+    (err) => {
+      if (err) return res.status(500).send(err);
+      res.send("OK");
+    },
   );
 });
 
 router.delete("/:id", (req, res) => {
-  db.query("DELETE FROM articulos WHERE id_articulo=?", [req.params.id],
-    (err) => { if (err) return res.status(500).send(err); res.send("OK"); });
+  db.query(
+    "DELETE FROM articulos WHERE id_articulo=?",
+    [req.params.id],
+    (err) => {
+      if (err) return res.status(500).send(err);
+      res.send("OK");
+    },
+  );
 });
 
 module.exports = router;

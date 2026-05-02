@@ -50,6 +50,13 @@
         <input class="form-input" id="p-stack" placeholder="Ej: C++, Python, React, MySQL"/>
         <small style="color:var(--text-dim);font-size:11px;margin-top:4px;display:block">Separa con comas</small>
       </div>
+        <div class="form-group">
+        <label class="form-label">Etiquetas / Tags *</label>
+        <input class="form-input" id="p-tags" placeholder="Ej: AVL, arboles, segundo-semestre"/>
+       <small style="color:var(--text-dim);font-size:11px;margin-top:4px;display:block">
+             
+        </small>
+        </div>
       <div class="form-group">
         <label class="form-label">Categoría</label>
         <select class="form-input" id="p-categoria">
@@ -114,18 +121,22 @@ function setTipo(t) {
 }
 
 async function publicarProyecto() {
-  const titulo      = document.getElementById('p-titulo').value.trim();
+   const titulo      = document.getElementById('p-titulo').value.trim();
   const descripcion = document.getElementById('p-desc').value.trim();
   const stack       = document.getElementById('p-stack').value.trim();
+  const tags        = document.getElementById('p-tags').value.trim(); 
   const categoria   = document.getElementById('p-categoria').value;
   const archivo     = document.getElementById('p-archivo').files[0];
+
   if (!titulo || !descripcion) return showToast('Título y descripción son obligatorios', 'error');
   if (!archivo) return showToast('Debes adjuntar al menos un archivo', 'error');
+  if (!tags) return showToast('Agrega al menos una etiqueta', 'error'); 
 
   const fd = new FormData();
   fd.append('titulo', titulo);
   fd.append('descripcion', descripcion);
   fd.append('stack_tecnologico', stack);
+  fd.append('tags', tags); 
   fd.append('id_usuario', user.id_usuario);
   if (categoria) fd.append('id_categoria', categoria);
   fd.append('archivo', archivo);
@@ -134,7 +145,7 @@ async function publicarProyecto() {
     await Proyectos.crear(fd);
     showToast('¡Proyecto publicado con éxito!');
     setTimeout(() => window.location.href = 'feed.html', 1500);
-  } catch { showToast('Error al publicar. ¿Está el servidor corriendo?', 'error'); }
+  } catch { showToast('Error al publicar.', 'error'); }
 }
 
 async function publicarArticulo() {

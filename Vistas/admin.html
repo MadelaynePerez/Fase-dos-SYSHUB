@@ -34,9 +34,10 @@
 
     <!-- TABS -->
     <div style="display:flex;gap:4px;background:var(--bg3);border-radius:10px;padding:4px;width:fit-content">
-      <button class="btn btn-primary btn-sm" id="tab-usuarios"  onclick="setTab('usuarios')">👥 Usuarios</button>
-      <button class="btn btn-ghost btn-sm"   id="tab-proyectos" onclick="setTab('proyectos')">📁 Proyectos</button>
-      <button class="btn btn-ghost btn-sm"   id="tab-foros"     onclick="setTab('foros')">💬 Foros</button>
+       <button class="btn btn-primary btn-sm" id="tab-usuarios"  onclick="setTab('usuarios')">👥 Usuarios</button>
+  <button class="btn btn-ghost btn-sm"   id="tab-proyectos" onclick="setTab('proyectos')">📁 Proyectos</button>
+  <button class="btn btn-ghost btn-sm"   id="tab-foros"     onclick="setTab('foros')">💬 Foros</button>
+  <button class="btn btn-ghost btn-sm"   id="tab-denuncias" onclick="setTab('denuncias')">🚩 Denuncias</button>
     </div>
 
     <!-- STATS -->
@@ -156,7 +157,7 @@ async function cargarTodo() {
 
 function setTab(t) {
   tabActivo = t;
-  ['usuarios','proyectos','foros'].forEach(tab => {
+  ['usuarios','proyectos','foros','denuncias'].forEach(tab => {
     const btn = document.getElementById('tab-'+tab);
     btn.className = 'btn btn-sm ' + (tab===t ? 'btn-primary' : 'btn-ghost');
   });
@@ -168,6 +169,7 @@ function renderTab() {
   if (tabActivo === 'usuarios')   c.innerHTML = renderUsuarios();
   if (tabActivo === 'proyectos')  c.innerHTML = renderProyectos();
   if (tabActivo === 'foros')      c.innerHTML = renderForos();
+  if (tabActivo === 'denuncias')  renderDenuncias(); 
 }
 
 function renderUsuarios() {
@@ -178,7 +180,7 @@ function renderUsuarios() {
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>#</th><th>Nombre</th><th>Correo</th><th>Rol</th><th>Registro</th><th>Acciones</th></tr></thead>
+        <thead><tr><th>#</th><th>Nombre</th><th>Correo</th><th>Rol</th><th>Estado</th><th>Registro</th><th>Acciones</th></tr></thead>
         <tbody>
           ${us.map(u => `
             <tr>
@@ -186,11 +188,26 @@ function renderUsuarios() {
               <td><div style="font-weight:600;font-size:13px">${u.nombre}</div></td>
               <td style="font-size:12px;color:var(--text-muted);font-family:var(--mono)">${u.email}</td>
               <td>${badgeRol(u.id_rol)}</td>
+              <td>
+                ${u.suspendido 
+                  ? `<span class="badge badge-admin">🚫 Suspendido</span>`
+                  : `<span class="badge badge-foro">✅ Activo</span>`}
+              </td>
               <td style="font-size:12px;color:var(--text-dim)">${timeSince(u.fecha_creacion)}</td>
               <td>
-                <div style="display:flex;gap:6px">
-                  <button class="btn btn-ghost btn-sm" onclick="abrirEditarUsuario(${u.id_usuario},'${u.nombre}','${u.email}',${u.id_rol})">✏️ Editar</button>
-                  <button class="btn btn-danger btn-sm" onclick="eliminarUsuario(${u.id_usuario},'${u.nombre}')">🗑️</button>
+                <div style="display:flex;gap:6px;flex-wrap:wrap">
+                  <button class="btn btn-ghost btn-sm" 
+                    onclick="abrirEditarUsuario(${u.id_usuario},'${u.nombre}','${u.email}',${u.id_rol})">
+                    ✏️ Editar
+                  </button>
+                  <button class="btn ${u.suspendido ? 'btn-success' : 'btn-warning'} btn-sm" 
+                    onclick="suspenderUsuario(${u.id_usuario}, ${u.suspendido ? 1 : 0})">
+                    ${u.suspendido ? '✅ Activar' : '🚫 Suspender'}
+                  </button>
+                  <button class="btn btn-danger btn-sm" 
+                    onclick="eliminarUsuario(${u.id_usuario},'${u.nombre}')">
+                    🗑️
+                  </button>
                 </div>
               </td>
             </tr>`).join('')}
@@ -198,7 +215,87 @@ function renderUsuarios() {
       </table>
     </div>`;
 }
+async function renderDenuncias() {
+  const c = document.getElementById('tab-content');
+  try {
+    const denuncias = await apiFetch('/denuncias');
+    if (!denuncias.length) {
+      c.innerHTML = `<div class="empty-state"><div class="icon">✅</div><p>Sin denuncias pendientes.</p></div>`;
+      return;
+    }
+    c.innerHTML = `
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Tipo</th>
+              <th>ID ref.</th>
+              <th>Denunciante</th>
+              <th>Motivo</th>
+              <th>Estado</th>
+              <th>Fecha</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${denuncias.map(d => `
+              <tr>
+                <td><span class="badge badge-proyecto">${d.tipo}</span></td>
+                <td style="color:var(--text-dim)">#${d.id_referencia}</td>
+                <td style="font-size:12px;color:var(--purple-light)">${d.nombre_denunciante||'—'}</td>
+                <td style="font-size:13px">${d.motivo}</td>
+                <td>
+                  <span class="badge ${
+                    d.estado==='pendiente' ? 'badge-admin' : 
+                    d.estado==='revisada'  ? 'badge-auxiliar' : 
+                    'badge-foro'}">
+                    ${d.estado}
+                  </span>
+                </td>
+                <td style="font-size:12px;color:var(--text-dim)">${timeSince(d.fecha)}</td>
+                <td>
+                  <div style="display:flex;gap:6px">
+                    <button class="btn btn-ghost btn-sm" 
+                      onclick="cambiarDenuncia(${d.id_denuncia},'revisada')">
+                      👁️ Revisar
+                    </button>
+                    <button class="btn btn-success btn-sm" 
+                      onclick="cambiarDenuncia(${d.id_denuncia},'resuelta')">
+                      ✅ Resolver
+                    </button>
+                  </div>
+                </td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  } catch {
+    c.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><p>Error al cargar denuncias.</p></div>`;
+  }
+}
 
+async function cambiarDenuncia(id, estado) {
+  try {
+    await apiFetch(`/denuncias/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ estado })
+    });
+    showToast('Denuncia actualizada');
+    renderDenuncias();
+  } catch { showToast('Error', 'error'); }
+}
+async function suspenderUsuario(id, suspendido) {
+  const nuevoEstado = suspendido === 1 ? 0 : 1;
+  if (!confirm(`¿Deseas ${nuevoEstado ? 'suspender' : 'activar'} este usuario?`)) return;
+  try {
+    await apiFetch(`/usuarios/${id}/suspender`, {
+      method: 'PUT',
+      body: JSON.stringify({ suspendido: nuevoEstado })
+    });
+    showToast(nuevoEstado ? '🚫 Usuario suspendido' : '✅ Usuario activado');
+    cargarTodo();
+  } catch { showToast('Error al actualizar', 'error'); }
+}
 function renderProyectos() {
   const ps = dataCache.proyectos || [];
   return `

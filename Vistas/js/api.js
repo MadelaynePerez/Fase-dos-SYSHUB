@@ -1,7 +1,7 @@
 
 const API_BASE = 'http://localhost:3000';
 
-//  HELPERS 
+//  helpers 
 async function apiFetch(path, options = {}) {
   const res = await fetch(API_BASE + path, {
     headers: { 'Content-Type': 'application/json', ...options.headers },
@@ -15,13 +15,13 @@ async function apiFetch(path, options = {}) {
   return ct.includes('json') ? res.json() : res.text();
 }
 
-//  AUT
+
 const Auth = {
   login:    (email, password)         => apiFetch('/auth/login',    { method:'POST', body: JSON.stringify({email, password}) }),
   register: (nombre, email, password) => apiFetch('/auth/register', { method:'POST', body: JSON.stringify({nombre, email, password}) }),
 };
 
-// PROYECTOS
+
 const Proyectos = {
   listar: () => apiFetch('/proyectos'),
   crear:  (formData) => fetch(API_BASE + '/proyectos', { method:'POST', body: formData }).then(r => { if(!r.ok) throw new Error(); return r.text(); }),
@@ -30,35 +30,36 @@ const Proyectos = {
   destacar: (id, val) => apiFetch(`/proyectos/${id}/destacar`, { method:'PUT', body: JSON.stringify({destacado: val}) }),
 };
 
-//FORO
+
 const Foros = {
   listar: ()           => apiFetch('/foros'),
   crear:  (data)       => apiFetch('/foros', { method:'POST', body: JSON.stringify(data) }),
   borrar: (id)         => apiFetch(`/foros/${id}`, { method:'DELETE' }),
 };
 
-// COMENTARIO
+
 const Comentarios = {
   listar: (id_foro)    => apiFetch(`/comentarios/${id_foro}`),
   crear:  (data)       => apiFetch('/comentarios', { method:'POST', body: JSON.stringify(data) }),
   borrar: (id)         => apiFetch(`/comentarios/${id}`, { method:'DELETE' }),
 };
 
-// VOTOS
+// voto
 const Votos = {
   votar: (tipo, id_referencia, id_usuario, valor) =>
     apiFetch('/votos', { method:'POST', body: JSON.stringify({tipo, id_referencia, id_usuario, valor}) }),
 };
 
-// ── USUARIOS (admin) 
+// ── usario (admin) 
 const Usuarios = {
-  listar: ()         => apiFetch('/usuarios'),
-  editar: (id, data) => apiFetch(`/usuarios/${id}`, { method:'PUT',    body: JSON.stringify(data) }),
+   listar: ()         => apiFetch('/usuarios'),
+  editar: (id, data) => apiFetch(`/usuarios/${id}`, { method:'PUT', body: JSON.stringify(data) }),
   borrar: (id)       => apiFetch(`/usuarios/${id}`, { method:'DELETE' }),
   cambiarRol: (id, id_rol) => apiFetch(`/usuarios/${id}`, { method:'PUT', body: JSON.stringify({id_rol}) }),
+  suspender: (id, suspendido) => apiFetch(`/usuarios/${id}/suspender`, { method:'PUT', body: JSON.stringify({suspendido}) }),
 };
 
-// ── SESIÓN LOCAL 
+// ── sesion local 
 const Session = {
   get:    ()     => { try { return JSON.parse(localStorage.getItem('syshub_user')); } catch { return null; } },
   set:    (user) => localStorage.setItem('syshub_user', JSON.stringify(user)),

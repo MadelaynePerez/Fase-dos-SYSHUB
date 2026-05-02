@@ -17,6 +17,7 @@ app.use("/comentarios", require("./routes/comentarios"));
 app.use("/usuarios",    require("./routes/usuarios"));
 app.use("/votos",       require("./routes/votos"));
 app.use("/articulos",   require("./routes/articulos"));
+app.use("/denuncias", require("./routes/denuncias"));
 
 
 

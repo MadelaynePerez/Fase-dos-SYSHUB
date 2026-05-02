@@ -22,18 +22,18 @@ router.post("/", upload.any(), (req, res) => {
   console.log("BODY:", req.body);
   console.log("FILES:", req.files);
 
-  const { titulo, descripcion, stack_tecnologico, id_usuario } = req.body;
+  const { titulo, descripcion, stack_tecnologico, id_usuario, tags } = req.body;
 
   const archivo = req.files && req.files.length > 0 
     ? req.files[0].filename 
     : null;
 
   const sql = `
-    INSERT INTO proyectos (titulo, descripcion, archivo, stack_tecnologico, id_usuario)
-    VALUES (?, ?, ?, ?, ?)
+    INSERT INTO proyectos (titulo, descripcion, archivo, stack_tecnologico,tags, id_usuario)
+    VALUES (?, ?, ?, ?, ?, ?)
   `;
 
-  db.query(sql, [titulo, descripcion, archivo, stack_tecnologico, id_usuario], (err, result) => {
+  db.query(sql, [titulo, descripcion, archivo, stack_tecnologico,tags, id_usuario], (err, result) => {
     if (err) return res.status(500).send(err);
     res.send("Proyecto con archivo creado");
   });
