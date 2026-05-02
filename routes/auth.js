@@ -19,7 +19,7 @@ router.post("/register", async (req, res) => {
 
 // LOGIN
 router.post("/login", (req, res) => {
-    console.log(req.body);
+  console.log(req.body);
   const { email, password } = req.body;
 
   const sql = "SELECT * FROM usuarios WHERE email = ?";
@@ -40,12 +40,28 @@ router.post("/login", (req, res) => {
     }
 
     res.json({
-  id_usuario: user.id_usuario,
-  nombre: user.nombre,
-  email: user.email,
-  id_rol: user.id_rol
+      id_usuario: user.id_usuario,
+      nombre: user.nombre,
+      email: user.email,
+      id_rol: user.id_rol
+    });
+
+  });
 });
-    
+
+router.post("/recuperar", async (req, res) => {
+  const { email, password_nueva } = req.body;
+
+  db.query("SELECT * FROM usuarios WHERE email=?", [email], async (err, result) => {
+    if (err) return res.status(500).send(err);
+    if (!result.length) return res.status(404).send("Correo no registrado");
+
+    const hash = await bcrypt.hash(password_nueva, 10);
+    db.query(
+      "UPDATE usuarios SET password=? WHERE email=?",
+      [hash, email],
+      (err) => { if (err) return res.status(500).send(err); res.send("OK"); }
+    );
   });
 });
 

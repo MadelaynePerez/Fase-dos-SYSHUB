@@ -53,6 +53,7 @@
         <button class="btn btn-ghost btn-sm" id="tab-proyectos" onclick="setTab('proyectos')">📁 Proyectos</button>
         <button class="btn btn-ghost btn-sm" id="tab-foros" onclick="setTab('foros')">💬 Foros</button>
         <button class="btn btn-ghost btn-sm" id="tab-denuncias" onclick="setTab('denuncias')">🚩 Denuncias</button>
+        <button class="btn btn-ghost btn-sm" id="tab-categorias" onclick="setTab('categorias')">📚 Pensum</button>
       </div>
 
       <!-- STATS -->
@@ -154,6 +155,21 @@
       </div>
     </div>
   </div>
+  <div class="modal-overlay" id="modal-nueva-categoria">
+    <div class="modal">
+      <div class="modal-title">Nueva categoría
+        <button class="modal-close" onclick="closeModal('modal-nueva-categoria')">×</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nombre del curso/área</label>
+        <input class="form-input" id="nc-nombre" placeholder="Ej: Inteligencia Artificial, Redes..." />
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeModal('modal-nueva-categoria')">Cancelar</button>
+        <button class="btn btn-primary" onclick="crearCategoria()">Crear</button>
+      </div>
+    </div>
+  </div>
 
   <div id="toast"></div>
   <script src="js/api.js"></script>
@@ -182,7 +198,7 @@
 
     function setTab(t) {
       tabActivo = t;
-      ['usuarios', 'proyectos', 'foros', 'denuncias'].forEach(tab => {
+      ['usuarios', 'proyectos', 'foros', 'denuncias', 'categorias'].forEach(tab => {
         const btn = document.getElementById('tab-' + tab);
         btn.className = 'btn btn-sm ' + (tab === t ? 'btn-primary' : 'btn-ghost');
       });
@@ -195,6 +211,7 @@
       if (tabActivo === 'proyectos') c.innerHTML = renderProyectos();
       if (tabActivo === 'foros') c.innerHTML = renderForos();
       if (tabActivo === 'denuncias') renderDenuncias();
+      if (tabActivo === 'categorias') renderCategorias();
     }
 
     function renderUsuarios() {
@@ -239,6 +256,61 @@
         </tbody>
       </table>
     </div>`;
+    }
+    async function renderCategorias() {
+      const c = document.getElementById('tab-content');
+      try {
+        const cats = await apiFetch('/categorias');
+        c.innerHTML = `
+      <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+        <button class="btn btn-primary btn-sm" onclick="openModal('modal-nueva-categoria')">
+          + Nueva categoría
+        </button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Nombre</th><th>Acciones</th></tr>
+          </thead>
+          <tbody>
+            ${cats.map(cat => `
+              <tr>
+                <td style="color:var(--text-dim)">#${cat.id_categoria}</td>
+                <td style="font-weight:600">${cat.nombre}</td>
+                <td>
+                  <button class="btn btn-danger btn-sm" 
+                    onclick="eliminarCategoria(${cat.id_categoria},'${cat.nombre}')">
+                    🗑️
+                  </button>
+                </td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`;
+      } catch {
+        c.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><p>Error al cargar.</p></div>`;
+      }
+    }
+
+    async function eliminarCategoria(id, nombre) {
+      if (!confirm(`¿Eliminar categoría "${nombre}"?`)) return;
+      try {
+        await apiFetch(`/categorias/${id}`, { method: 'DELETE' });
+        showToast('Categoría eliminada');
+        renderCategorias();
+      } catch { showToast('Error', 'error'); }
+    }
+
+    async function crearCategoria() {
+      const nombre = document.getElementById('nc-nombre').value.trim();
+      if (!nombre) return showToast('Ingresa un nombre', 'error');
+      try {
+        await apiFetch('/categorias', { method: 'POST', body: JSON.stringify({ nombre }) });
+        showToast(' Categoría creada');
+        closeModal('modal-nueva-categoria');
+        document.getElementById('nc-nombre').value = '';
+        renderCategorias();
+      } catch { showToast('Error', 'error'); }
     }
     async function renderDenuncias() {
       const c = document.getElementById('tab-content');

@@ -172,6 +172,15 @@
         setTimeout(() => window.location.href = 'feed.html', 1500);
       } catch { showToast('Error al publicar artículo', 'error'); }
     }
+    async function cargarCategorias() {
+      try {
+        const cats = await apiFetch('/categorias');
+        const select = document.getElementById('p-categoria');
+        select.innerHTML = '<option value="">Sin categoría</option>' +
+          cats.map(c => `<option value="${c.id_categoria}">${c.nombre}</option>`).join('');
+      } catch { }
+    }
+    cargarCategorias();
   </script>
 </body>
 

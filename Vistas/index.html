@@ -204,14 +204,22 @@
 
       <div class="view" id="view-recover">
         <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">
-          Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña.
+          Ingresa tu correo registrado y establece una nueva contraseña.
         </p>
         <div class="form-group">
           <label class="form-label">Correo registrado</label>
           <input class="form-input" type="email" id="rec-email" placeholder="usuario@usac.edu.gt" />
         </div>
+        <div class="form-group">
+          <label class="form-label">Nueva contraseña</label>
+          <input class="form-input" type="password" id="rec-pass-nueva" placeholder="Mínimo 6 caracteres" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirmar contraseña</label>
+          <input class="form-input" type="password" id="rec-pass-confirmar" placeholder="Repite la contraseña" />
+        </div>
         <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px" onclick="doRecover()">
-          Enviar enlace
+          Restablecer contraseña
         </button>
         <div class="back-link" style="margin-top:16px">
           <span onclick="showView('login')">← Volver al inicio de sesión</span>
@@ -289,9 +297,23 @@
 
     async function doRecover() {
       const email = document.getElementById('rec-email').value.trim();
-      if (!email) return showErr('Ingresa tu correo.');
+      const nueva = document.getElementById('rec-pass-nueva').value;
+      const confirmar = document.getElementById('rec-pass-confirmar').value;
 
-      showOk('Si el correo existe en el sistema, recibirás un enlace pronto. (Funcionalidad en desarrollo)');
+      if (!email) return showErr('Ingresa tu correo.');
+      if (!nueva || nueva.length < 6) return showErr('Mínimo 6 caracteres.');
+      if (nueva !== confirmar) return showErr('Las contraseñas no coinciden.');
+
+      try {
+        await apiFetch('/auth/recuperar', {
+          method: 'POST',
+          body: JSON.stringify({ email, password_nueva: nueva })
+        });
+        showOk(' Contraseña actualizada. Ya puedes iniciar sesión.');
+        showView('login');
+      } catch {
+        showErr('Ese correo no está registrado.');
+      }
     }
   </script>
 </body>
